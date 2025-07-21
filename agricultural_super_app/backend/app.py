@@ -237,6 +237,60 @@ def get_user_profile():
         # Add any other profile fields you want to expose
     }), 200
 
+# NEW: Update User Profile
+@app.route('/api/profile', methods=['PUT']) # Using PUT for full replacement/update
+@jwt_required()
+def update_user_profile():
+    current_user_id = get_jwt_identity()
+    user = db.session.get(User, current_user_id)
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    data = request.get_json()
+    new_username = data.get('username')
+    new_email = data.get('email')
+    new_password = data.get('password') # Handle password updates separately/carefully
+
+    # Basic validation and update logic
+    updated = False
+    if new_username and new_username != user.username:
+        # Check if new username already exists
+        if User.query.filter_by(username=new_username).first():
+            return jsonify({'message': 'Username already taken'}), 409
+        user.username = new_username
+        updated = True
+
+    if new_email and new_email != user.email:
+        # Check if new email already exists
+        if User.query.filter_by(email=new_email).first():
+            return jsonify({'message': 'Email already taken'}), 409
+        user.email = new_email
+        updated = True
+
+    # IMPORTANT: Handle password updates with care.
+    # It's often better to have a separate 'change password' endpoint
+    # that requires the old password for security.
+    if new_password:
+        # For simplicity, we'll allow direct password change here,
+        # but consider a separate flow for production.
+        user.set_password(new_password)
+        updated = True
+
+    if updated:
+        db.session.commit()
+        return jsonify({
+            "message": "Profile updated successfully!",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email
+            }
+        }), 200
+    else:
+        return jsonify({"message": "No changes provided or nothing to update"}), 200 # Or 400 if strictly no data
+
+
 @app.route('/api/logout', methods=['POST'])
 @jwt_required()
 def logout():
