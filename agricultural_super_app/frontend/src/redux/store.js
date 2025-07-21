@@ -1,23 +1,55 @@
-import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./auth/authSlice"; // Path based on your screenshot
-import { apiSlice } from "./api/apiSlice"; // Import the base apiSlice
-import { uploadApi } from "./api/uploadApiSlice"; // Your new uploadApiSlice
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import authReducer from "./auth/authSlice";
+import { apiSlice } from "./api/apiSlice";
+import { uploadApi } from "./api/uploadApiSlice";
 
-// NOTE: We no longer import postApiSlice or marketplaceApiSlice here for their middleware,
-// because their endpoints are *injected* into the single 'apiSlice' instance.
-// They are still imported in their respective components (e.g., HomePage, PostsListPage)
-// to use their specific hooks (e.g., useGetPostsQuery).
+// --- Redux Persist Imports ---
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from "redux-persist";
+import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 
-export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    [apiSlice.reducerPath]: apiSlice.reducer, // Use the base apiSlice reducer
-    [uploadApi.reducerPath]: uploadApi.reducer, // Keep uploadApi if it's a separate API slice
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
-      .concat(apiSlice.middleware) // ONLY ADD THE BASE API SLICE MIDDLEWARE ONCE
-      .concat(uploadApi.middleware), // Keep uploadApi middleware if it's a separate API slice
+// Configuration for redux-persist
+const persistConfig = {
+  key: "root", // The key for the persist storage
+  version: 1,
+  storage, // Use localStorage
+  whitelist: ["auth"], // ONLY the 'auth' slice will be persisted
+  // blacklist: ['api', 'uploadApi'] // Optionally blacklist if you don't want these parts persisted
+};
+
+// Combine all your reducers
+const rootReducer = combineReducers({
+  auth: authReducer,
+  [apiSlice.reducerPath]: apiSlice.reducer,
+  [uploadApi.reducerPath]: uploadApi.reducer,
 });
 
+// Create a persisted reducer
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+  reducer: persistedReducer, // Use the persisted reducer here
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      // Exclude redux-persist action types from the serializability check
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    })
+      .concat(apiSlice.middleware)
+      .concat(uploadApi.middleware),
+});
+
+// Create a persistor object, which will be used in your App.js
+export const persistor = persistStore(store);
+
+// Export store as default if you prefer
 export default store;
