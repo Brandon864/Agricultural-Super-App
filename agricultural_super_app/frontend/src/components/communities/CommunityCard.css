@@ -1,0 +1,58 @@
+.community-card {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-medium);
+  margin-bottom: var(--spacing-medium);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align content to the left */
+  max-width: 350px; /* Adjust as needed for layout */
+  width: 100%;
+}
+
+.community-card h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-small);
+  font-size: 1.4em;
+}
+
+.community-card h3 a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.community-card h3 a:hover {
+  text-decoration: underline;
+}
+
+.community-card p {
+  margin-bottom: var(--spacing-small);
+  font-size: 0.95em;
+  color: var(--text-color);
+}
+
+.community-card .community-admin {
+  font-size: 0.85em;
+  color: var(--dark-gray);
+  margin-top: auto; /* Pushes admin info to the bottom if content is variable */
+  margin-bottom: var(--spacing-medium);
+}
+
+.community-card .view-community-button {
+  display: inline-block;
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 8px 15px;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease-in-out;
+  margin-top: var(--spacing-small);
+}
+
+.community-card .view-community-button:hover {
+  background-color: #2980b9;
+  text-decoration: none;
+}

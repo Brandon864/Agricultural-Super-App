@@ -1,0 +1,16 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-JWT-Extended
+Flask-Bcrypt
+Flask-CORS # For frontend-backend communication during development
+SQLAlchemy
+psycopg2-binary # PostgreSQL adapter
+python-dotenv # For loading .env files
+Flask-Marshmallow
+marshmallow-sqlalchemy
+Pillow # For image processing (if you handle image uploads directly in Flask)
+
+# For testing (if using pytest)
+pytest
+pytest-flask
