@@ -7,20 +7,22 @@ from flask_cors import CORS
 from datetime import timedelta
 import os
 import json # For handling JSON strings for likes/unlikes
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
 # --- CORS Configuration ---
+# IMPORTANT: Adjust origins in production. For development, this allows your React app to connect.
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 # --- Configuration ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///agri_app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_super_secret_key_change_me')
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your_jwt_secret_key_change_me_too')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_super_secret_key_change_me') # Change this in production
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your_jwt_secret_key_change_me_too') # Change this in production
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1) # Token expiration time
 
-# File Uploads
+# File Uploads Configuration
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -30,7 +32,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Initialize Extensions
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+migrate = Migrate(app, db) # Initialize Flask-Migrate
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
@@ -40,17 +42,29 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
+    bio = db.Column(db.Text, nullable=True, default='') # NEW: Added bio field
 
+    # Relationships
     posts = db.relationship('Post', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='comment_author', lazy=True)
     marketplace_items = db.relationship('MarketplaceItem', backref='seller', lazy=True)
     community_memberships = db.relationship('CommunityMembership', back_populates='user', lazy=True)
+    community_owned = db.relationship('Community', backref='community_owner', lazy=True, primaryjoin="User.id == Community.owner_id") # Relationship for communities owned by user
 
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+
+    # Method to convert User object to dictionary (for JSON responses)
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'bio': self.bio # Include bio in the dictionary representation
+        }
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -61,10 +75,10 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-    # community_id = db.Column(db.Integer, db.ForeignKey('community.id'), nullable=True)
+    # community_id = db.Column(db.Integer, db.ForeignKey('community.id'), nullable=True) # Uncomment if posts belong to communities
 
     comments = db.relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")
-    likes = db.Column(db.String(1000), default='[]') # Stores JSON of user IDs
+    likes = db.Column(db.String(1000), default='[]') # Stores JSON of user IDs (list of user IDs)
 
     def to_dict(self):
         likes_list = []
@@ -77,11 +91,12 @@ class Post(db.Model):
             'title': self.title,
             'content': self.content,
             'user_id': self.user_id,
-            'author_username': self.author.username if self.author else None,
+            'author_username': self.author.username if self.author else None, # Safely get author's username
             'created_at': self.created_at.isoformat(),
             'likes': likes_list,
-            # 'community_id': self.community_id,
-            # 'community_name': self.community.name if self.community else None,
+            # 'community_id': self.community_id, # Uncomment if community_id is active
+            # 'community_name': self.community.name if self.community else None, # Uncomment if community relationship is active
+            # 'community': {'id': self.community.id, 'name': self.community.name} if self.community else None, # Example of including community object
         }
 
 class Comment(db.Model):
@@ -141,7 +156,7 @@ class Community(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     members = db.relationship('CommunityMembership', back_populates='community', lazy=True)
-    # posts = db.relationship('Post', backref='community', lazy=True)
+    # posts = db.relationship('Post', backref='community', lazy=True) # Uncomment if posts belong to communities
 
     def to_dict(self):
         member_ids = [member.user_id for member in self.members]
@@ -164,12 +179,8 @@ class CommunityMembership(db.Model):
     user = db.relationship('User', back_populates='community_memberships')
     community = db.relationship('Community', back_populates='members')
 
-User.community_owned = db.relationship('Community', backref='community_owner', lazy=True, primaryjoin="User.id == Community.owner_id")
-
 
 # --- Utility Functions ---
-from werkzeug.utils import secure_filename
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -207,17 +218,12 @@ def login():
     user = User.query.filter_by(username=username).first()
 
     if user and user.check_password(password):
-        # Ensure identity is string for JWT
         access_token = create_access_token(identity=str(user.id))
-        response = jsonify({
+        return jsonify({
             'message': 'Logged in successfully!',
             'access_token': access_token,
-            'user_id': user.id,
-            'username': user.username
-        })
-        # Uncomment if you configure JWT to use HttpOnly cookies
-        # set_access_cookies(response, access_token)
-        return response, 200
+            'user': user.to_dict() # Return full user object including bio
+        }), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
 
@@ -225,20 +231,14 @@ def login():
 @jwt_required()
 def get_user_profile():
     current_user_id = get_jwt_identity()
-    user = db.session.get(User, current_user_id) # Recommended way in SQLAlchemy 2.0+
+    user = db.session.get(User, current_user_id)
 
     if not user:
         return jsonify({"message": "User not found"}), 404
 
-    return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email
-        # Add any other profile fields you want to expose
-    }), 200
+    return jsonify(user.to_dict()), 200 # Return full user object including bio
 
-# NEW: Update User Profile
-@app.route('/api/profile', methods=['PUT']) # Using PUT for full replacement/update
+@app.route('/api/profile', methods=['PUT'])
 @jwt_required()
 def update_user_profile():
     current_user_id = get_jwt_identity()
@@ -250,30 +250,28 @@ def update_user_profile():
     data = request.get_json()
     new_username = data.get('username')
     new_email = data.get('email')
-    new_password = data.get('password') # Handle password updates separately/carefully
+    new_password = data.get('password')
+    new_bio = data.get('bio') # Get the new bio from request
 
-    # Basic validation and update logic
     updated = False
-    if new_username and new_username != user.username:
-        # Check if new username already exists
+    if new_username is not None and new_username != user.username:
         if User.query.filter_by(username=new_username).first():
             return jsonify({'message': 'Username already taken'}), 409
         user.username = new_username
         updated = True
 
-    if new_email and new_email != user.email:
-        # Check if new email already exists
+    if new_email is not None and new_email != user.email:
         if User.query.filter_by(email=new_email).first():
             return jsonify({'message': 'Email already taken'}), 409
         user.email = new_email
         updated = True
 
-    # IMPORTANT: Handle password updates with care.
-    # It's often better to have a separate 'change password' endpoint
-    # that requires the old password for security.
+    # Check for bio update: `is not None` allows setting bio to an empty string
+    if new_bio is not None and new_bio != user.bio:
+        user.bio = new_bio
+        updated = True
+
     if new_password:
-        # For simplicity, we'll allow direct password change here,
-        # but consider a separate flow for production.
         user.set_password(new_password)
         updated = True
 
@@ -281,26 +279,21 @@ def update_user_profile():
         db.session.commit()
         return jsonify({
             "message": "Profile updated successfully!",
-            "user": {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email
-            }
+            "user": user.to_dict() # Return the full updated user object including bio
         }), 200
     else:
-        return jsonify({"message": "No changes provided or nothing to update"}), 200 # Or 400 if strictly no data
-
+        return jsonify({"message": "No changes provided or nothing to update"}), 200
 
 @app.route('/api/logout', methods=['POST'])
 @jwt_required()
 def logout():
     response = jsonify({"msg": "logout successful"})
-    # Uncomment if you configure JWT to use HttpOnly cookies
-    # unset_jwt_cookies(response)
+    # set_access_cookies(response, '') # If using cookies, unset them
+    # unset_jwt_cookies(response) # If using cookies, unset them
     return response, 200
 
 @app.route('/api/upload/image', methods=['POST'])
-@jwt_required() # Require authentication for image uploads
+@jwt_required()
 def upload_image():
     if 'file' not in request.files:
         return jsonify({'message': 'No file part'}), 400
@@ -314,8 +307,6 @@ def upload_image():
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
-
-        # Assumes Flask app serves static files from 'uploads' folder (default behavior)
         image_url = f'http://localhost:5000/{app.config["UPLOAD_FOLDER"]}/{filename}'
         return jsonify({'message': 'File uploaded successfully', 'url': image_url}), 201
     else:
@@ -340,13 +331,13 @@ def create_post():
     user_id = get_jwt_identity()
     title = data.get('title')
     content = data.get('content')
-    # community_id = data.get('community_id')
+    # community_id = data.get('community_id') # Still commented out
 
     if not title or not content:
         return jsonify({'message': 'Title and content are required'}), 400
 
     new_post = Post(title=title, content=content, user_id=user_id)
-    # if community_id:
+    # if community_id: # Still commented out
     #    community = Community.query.get(community_id)
     #    if not community:
     #        return jsonify({'message': 'Community not found'}), 404
@@ -569,5 +560,8 @@ def leave_community(community_id):
 if __name__ == '__main__':
     with app.app_context():
         # For database setup: db.create_all() creates tables. For schema changes, use Flask-Migrate instead.
-        db.create_all()
+        # IF YOU ARE STARTING FRESH AND WANT TO DELETE ALL DATA:
+        # db.drop_all() # Uncomment this line to drop all tables before creating
+        db.create_all() # This creates tables if they don't exist.
+                        # For existing databases with schema changes, use Flask-Migrate.
     app.run(debug=True, port=5000)
