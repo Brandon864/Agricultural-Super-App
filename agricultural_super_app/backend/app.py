@@ -6,23 +6,20 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_cors import CORS
 from datetime import timedelta
 import os
-import json # For handling JSON strings for likes/unlikes
+import json 
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# --- CORS Configuration ---
-# IMPORTANT: Adjust origins in production. For development, this allows your React app to connect.
+
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
-# --- Configuration ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///agri_app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_super_secret_key_change_me') # Change this in production
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your_jwt_secret_key_change_me_too') # Change this in production
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1) # Token expiration time
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 
-# File Uploads Configuration
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -91,7 +88,7 @@ class Post(db.Model):
             'title': self.title,
             'content': self.content,
             'user_id': self.user_id,
-            'author_username': self.author.username if self.author else None, # Safely get author's username
+            'author_username': self.author.username if self.author else None, 
             'created_at': self.created_at.isoformat(),
             'likes': likes_list,
             # 'community_id': self.community_id, # Uncomment if community_id is active
@@ -104,12 +101,10 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
-    parent_comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True) # For nested replies
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy='dynamic', cascade="all, delete-orphan")
-    likes = db.Column(db.String(1000), default='[]') # Stores JSON of user IDs
-
+    likes = db.Column(db.String(1000), default='[]') 
     def to_dict(self):
         likes_list = []
         try:
@@ -156,8 +151,6 @@ class Community(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     members = db.relationship('CommunityMembership', back_populates='community', lazy=True)
-    # posts = db.relationship('Post', backref='community', lazy=True) # Uncomment if posts belong to communities
-
     def to_dict(self):
         member_ids = [member.user_id for member in self.members]
         return {
@@ -222,7 +215,7 @@ def login():
         return jsonify({
             'message': 'Logged in successfully!',
             'access_token': access_token,
-            'user': user.to_dict() # Return full user object including bio
+            'user': user.to_dict()
         }), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
@@ -236,8 +229,7 @@ def get_user_profile():
     if not user:
         return jsonify({"message": "User not found"}), 404
 
-    return jsonify(user.to_dict()), 200 # Return full user object including bio
-
+    return jsonify(user.to_dict()), 200 
 @app.route('/api/profile', methods=['PUT'])
 @jwt_required()
 def update_user_profile():
@@ -266,7 +258,6 @@ def update_user_profile():
         user.email = new_email
         updated = True
 
-    # Check for bio update: `is not None` allows setting bio to an empty string
     if new_bio is not None and new_bio != user.bio:
         user.bio = new_bio
         updated = True
@@ -279,7 +270,7 @@ def update_user_profile():
         db.session.commit()
         return jsonify({
             "message": "Profile updated successfully!",
-            "user": user.to_dict() # Return the full updated user object including bio
+            "user": user.to_dict() 
         }), 200
     else:
         return jsonify({"message": "No changes provided or nothing to update"}), 200
@@ -288,8 +279,6 @@ def update_user_profile():
 @jwt_required()
 def logout():
     response = jsonify({"msg": "logout successful"})
-    # set_access_cookies(response, '') # If using cookies, unset them
-    # unset_jwt_cookies(response) # If using cookies, unset them
     return response, 200
 
 @app.route('/api/upload/image', methods=['POST'])
@@ -331,17 +320,10 @@ def create_post():
     user_id = get_jwt_identity()
     title = data.get('title')
     content = data.get('content')
-    # community_id = data.get('community_id') # Still commented out
-
     if not title or not content:
         return jsonify({'message': 'Title and content are required'}), 400
 
     new_post = Post(title=title, content=content, user_id=user_id)
-    # if community_id: # Still commented out
-    #    community = Community.query.get(community_id)
-    #    if not community:
-    #        return jsonify({'message': 'Community not found'}), 404
-    #    new_post.community_id = community_id
 
     db.session.add(new_post)
     db.session.commit()
@@ -504,7 +486,6 @@ def create_community():
     db.session.add(new_community)
     db.session.commit()
 
-    # Automatically make the creator a member
     membership = CommunityMembership(user_id=user_id, community_id=new_community.id)
     db.session.add(membership)
     db.session.commit()
