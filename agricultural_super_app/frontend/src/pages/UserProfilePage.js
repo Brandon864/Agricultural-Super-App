@@ -7,13 +7,14 @@ function UserProfilePage() {
   const dispatch = useDispatch();
   const { currentUser, token } = useSelector((state) => state.auth);
 
+  // useGetUserQuery will automatically refetch when 'User' tag is invalidated by updateUser
   const {
     data: userData,
     isLoading,
     isSuccess,
     isError,
     error,
-    refetch,
+    // refetch, // We no longer need to explicitly destructure refetch if we're not calling it manually
   } = useGetUserQuery(undefined, {
     skip: !currentUser?.id,
   });
@@ -27,20 +28,23 @@ function UserProfilePage() {
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
   useEffect(() => {
+    // This effect ensures the form fields are populated with current user data
+    // It runs when userData is successfully fetched or when currentUser changes
     if (isSuccess && userData) {
       setUsername(userData.username || "");
       setEmail(userData.email || "");
       setBio(userData.bio || "");
       setProfilePictureUrl(userData.profile_picture_url || "");
     } else if (currentUser) {
+      // Fallback to currentUser if userData not yet available or failed
       setUsername(currentUser.username || "");
       setEmail(currentUser.email || "");
     }
-  }, [isSuccess, userData, currentUser]);
+  }, [isSuccess, userData, currentUser]); // Dependencies ensure effect runs when these values change
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    setMessage("");
+    setMessage(""); // Clear previous messages
 
     const updatedFields = {
       username,
@@ -52,14 +56,16 @@ function UserProfilePage() {
     try {
       const updatedUserResponse = await updateUser(updatedFields).unwrap();
       setMessage("Profile updated successfully!");
+      // Update the Redux auth state with the new user info from the backend response
+      // RTK Query will automatically refetch the profile data in the background due to invalidatesTags
       dispatch(setCredentials({ token: token, user: updatedUserResponse }));
-      refetch();
+      // Removed: refetch(); // This line is no longer needed as invalidatesTags handles it
     } catch (err) {
       console.error("Failed to update profile:", err);
       setMessage(
-        err.data?.message ||
-          err.error?.message ||
-          "Failed to update profile. Please try again."
+        err.data?.message || // Message from backend if available
+          err.error?.message || // Fallback for RTK Query errors
+          "Failed to update profile. Please try again." // Generic fallback
       );
     }
   };
@@ -84,7 +90,8 @@ function UserProfilePage() {
     );
   }
 
-  if (!userData) {
+  // Handle case where userData is still null after loading (e.g., not logged in, or initial skip)
+  if (!userData && !isLoading) {
     return (
       <div className="page-container text-center">
         <p className="no-content-message">
@@ -121,6 +128,7 @@ function UserProfilePage() {
         <p className="mb-2">
           <strong>Email:</strong> {userData.email}
         </p>
+        {/* Only display bio paragraph if bio data exists */}
         {userData.bio && (
           <p className="mb-2">
             <strong>Bio:</strong> {userData.bio}
