@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCreateMarketplaceItemMutation } from "../redux/api/marketplaceApiSlice";
-import { useAuth } from "../context/AuthContext";
+import { useSelector } from "react-redux"; // Correct: Import useSelector
+import { useCreateMarketplaceItemMutation } from "../redux/api/apiSlice"; // Correct: Import from your main apiSlice
 
 function CreateMarketplaceItemPage() {
   const navigate = useNavigate();
-  useAuth(); // Calling useAuth() without destructuring `currentUser` to prevent 'unused' warning
+  const { currentUser } = useSelector((state) => state.auth); // Get current user from Redux state
 
+  // --- CORRECTED: All hooks must be called unconditionally at the top level ---
   // State for form fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -17,9 +18,16 @@ function CreateMarketplaceItemPage() {
   const [location, setLocation] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
-  // Use the mutation hook
+  // Use the mutation hook from apiSlice
   const [createMarketplaceItem, { isLoading, isError, error }] =
     useCreateMarketplaceItemMutation();
+  // --- END CORRECTED ---
+
+  // Now, handle the redirect if not logged in. This check comes AFTER all hooks.
+  if (!currentUser) {
+    navigate("/login");
+    return null; // Prevent component from rendering further if not authenticated
+  }
 
   // Define categories for the dropdown
   const categories = [
@@ -191,7 +199,6 @@ function CreateMarketplaceItemPage() {
           />
           {imageUrl && (
             <div className="image-preview">
-              {/* CORRECTED ALT TEXT: Removed "image" */}
               <img
                 src={imageUrl}
                 alt="Product preview"

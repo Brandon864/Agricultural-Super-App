@@ -1,14 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useCreateCommunityMutation } from "../redux/api/communitiesApiSlice"; // Corrected import
+import { useSelector } from "react-redux"; // CORRECT: Added for auth state
+import { useCreateCommunityMutation } from "../redux/api/apiSlice"; // Assuming this is needed
 
 function CreateCommunityPage() {
-  const [communityName, setCommunityName] = useState("");
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.auth); // Get current user from Redux
+
+  // Redirect if not logged in (though PrivateRoute should ideally handle this already)
+  if (!currentUser) {
+    navigate("/login");
+    return null; // Or show a loading/redirect message
+  }
+
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
-  const { currentUser } = useAuth();
 
   const [createCommunity, { isLoading }] = useCreateCommunityMutation();
 
@@ -16,59 +23,54 @@ function CreateCommunityPage() {
     e.preventDefault();
     setMessage("");
 
-    if (!currentUser) {
-      setMessage("You must be logged in to create a community.");
-      return;
-    }
-
-    if (!communityName.trim()) {
-      setMessage("Community Name cannot be empty.");
-      return;
-    }
-
     try {
-      const newCommunity = await createCommunity({
-        name: communityName,
-        description: description,
-        creator_id: currentUser.id,
-      }).unwrap();
-
+      await createCommunity({ name, description }).unwrap();
       setMessage("Community created successfully!");
-      navigate(`/communities/${newCommunity.id}`);
+      navigate("/communities"); // Redirect to communities list
     } catch (err) {
       console.error("Failed to create community:", err);
       setMessage(
-        err.data?.message || "Error creating community: Something went wrong."
+        err.data?.message ||
+          err.error?.message ||
+          "Failed to create community. Please try again."
       );
     }
   };
 
   return (
-    <div className="page-container create-community-page">
+    <div className="page-container">
       <div className="form-container">
         <h2>Create New Community</h2>
+        {message && (
+          <p
+            className={`message ${
+              message.includes("successful") ? "success" : "error"
+            }`}
+          >
+            {message}
+          </p>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="communityName">Community Name:</label>
+            <label htmlFor="name">Community Name:</label>
             <input
               type="text"
-              id="communityName"
+              id="name"
               className="input-field"
-              value={communityName}
-              onChange={(e) => setCommunityName(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
-              disabled={isLoading}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="description">Description (Optional):</label>
+            <label htmlFor="description">Description:</label>
             <textarea
               id="description"
-              className="textarea-field"
+              className="input-field"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows="5"
-              disabled={isLoading}
+              required
             ></textarea>
           </div>
           <button
@@ -78,15 +80,6 @@ function CreateCommunityPage() {
           >
             {isLoading ? "Creating..." : "Create Community"}
           </button>
-          {message && (
-            <p
-              className={`message ${
-                message.includes("successfully") ? "success" : "error"
-              }`}
-            >
-              {message}
-            </p>
-          )}
         </form>
       </div>
     </div>

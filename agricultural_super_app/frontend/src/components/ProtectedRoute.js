@@ -1,19 +1,18 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux"; // CORRECT: Use useSelector from react-redux
 
-const ProtectedRoute = ({ children }) => {
-  const { isLoggedIn, isLoading } = useAuth();
+const PrivateRoute = () => {
+  // Get token and currentUser from Redux state
+  const { token, currentUser } = useSelector((state) => state.auth);
 
-  if (isLoading) {
-    return <div>Loading authentication...</div>;
-  }
-
-  if (!isLoggedIn) {
+  // If no token or no currentUser, redirect to login
+  if (!token || !currentUser) {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  // If authenticated, render the child routes
+  return <Outlet />;
 };
 
-export default ProtectedRoute;
+export default PrivateRoute;

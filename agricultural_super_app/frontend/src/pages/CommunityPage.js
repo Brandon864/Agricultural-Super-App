@@ -1,258 +1,132 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useSelector } from "react-redux"; // CORRECT: Added for auth state
 import {
-  useGetCommunityQuery,
+  useGetCommunityDetailQuery,
   useJoinCommunityMutation,
   useLeaveCommunityMutation,
-} from "../redux/api/communitiesApiSlice"; // Corrected import
-import {
-  useCreatePostMutation,
-  useGetPostsQuery,
-} from "../redux/api/postsApiSlice"; // Corrected import
+} from "../redux/api/apiSlice"; // Assuming these are needed
 
 function CommunityPage() {
   const { id } = useParams();
-  const { currentUser, refetchUser } = useAuth();
-  const [postTitle, setPostTitle] = useState("");
-  const [postContent, setPostContent] = useState("");
-  const [postMessage, setPostMessage] = useState("");
-  const [joinLeaveMessage, setJoinLeaveMessage] = useState("");
+  const { currentUser } = useSelector((state) => state.auth); // Get current user from Redux
 
   const {
     data: community,
-    isLoading: isCommunityLoading,
-    error: communityError,
-    refetch: refetchCommunity,
-  } = useGetCommunityQuery(id);
-  const {
-    data: posts,
-    isLoading: isPostsLoading,
-    error: postsError,
-    refetch: refetchPosts,
-  } = useGetPostsQuery();
+    isLoading,
+    isError,
+    error,
+    refetch, // Add refetch to update community data after join/leave
+  } = useGetCommunityDetailQuery(id);
 
-  const [joinCommunity, { isLoading: isJoining }] = useJoinCommunityMutation();
-  const [leaveCommunity, { isLoading: isLeaving }] =
-    useLeaveCommunityMutation();
-  const [createPost, { isLoading: isCreatingPost }] = useCreatePostMutation();
+  const [joinCommunity] = useJoinCommunityMutation();
+  const [leaveCommunity] = useLeaveCommunityMutation();
 
-  const isMember =
-    currentUser &&
-    community?.members?.some((member) => member.id === currentUser.id);
-
-  const handleJoinLeaveCommunity = async () => {
-    if (!currentUser) {
-      setJoinLeaveMessage("Please log in to join or leave a community.");
-      return;
-    }
-
-    setJoinLeaveMessage("");
-    try {
-      if (isMember) {
-        await leaveCommunity({
-          communityId: id,
-          userId: currentUser.id,
-        }).unwrap();
-        setJoinLeaveMessage("Successfully left the community!");
-      } else {
-        await joinCommunity({
-          communityId: id,
-          userId: currentUser.id,
-        }).unwrap();
-        setJoinLeaveMessage("Successfully joined the community!");
-      }
-      refetchCommunity();
-      refetchUser();
-    } catch (err) {
-      console.error("Failed to update community membership:", err);
-      setJoinLeaveMessage(
-        err.data?.message || "Failed to update community membership."
-      );
+  const handleJoin = async () => {
+    if (currentUser) {
+      await joinCommunity(id);
+      refetch(); // Refetch community details to update member list
+    } else {
+      alert("Please log in to join this community.");
     }
   };
 
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
-    if (!currentUser) {
-      setPostMessage("Please log in to create a post.");
-      return;
-    }
-    if (!postTitle.trim() || !postContent.trim()) {
-      setPostMessage("Title and content cannot be empty.");
-      return;
-    }
-    setPostMessage("");
-
-    try {
-      await createPost({
-        title: postTitle,
-        content: postContent,
-        author_id: currentUser.id,
-        community_id: id,
-      }).unwrap();
-      setPostMessage("Post created successfully!");
-      setPostTitle("");
-      setPostContent("");
-      refetchPosts();
-    } catch (err) {
-      console.error("Failed to create post:", err);
-      setPostMessage(err.data?.message || "Failed to create post.");
+  const handleLeave = async () => {
+    if (currentUser) {
+      await leaveCommunity(id);
+      refetch(); // Refetch community details to update member list
     }
   };
 
-  if (isCommunityLoading || isPostsLoading) {
-    return (
-      <div className="page-container">
-        <p>Loading community...</p>
-      </div>
-    );
+  if (isLoading) {
+    return <div className="page-container">Loading community...</div>;
   }
 
-  if (communityError) {
+  if (isError) {
     return (
       <div className="page-container">
-        <p className="error">
-          Error loading community:{" "}
-          {communityError.message || JSON.stringify(communityError)}
-        </p>
+        Error:{" "}
+        {error?.data?.message ||
+          error?.message ||
+          "An unexpected error occurred."}
       </div>
     );
   }
 
   if (!community) {
-    return (
-      <div className="page-container">
-        <p>Community not found.</p>
-      </div>
-    );
+    return <div className="page-container">Community not found.</div>;
   }
 
-  const communityPosts = posts
-    ? posts.filter((post) => post.community_id === community.id)
-    : [];
+  // Check if current user is a member (assuming community.members is an array of user objects with 'id')
+  const isMember =
+    currentUser &&
+    community.members &&
+    Array.isArray(community.members) &&
+    community.members.some((member) => member.id === currentUser.id);
 
   return (
     <div className="page-container">
-      <div className="community-header">
-        <h1>{community.name}</h1>
-        <p>{community.description}</p>
-        <p className="community-details">
-          Created: {new Date(community.created_at).toLocaleDateString()} |
-          Members: {community.members ? community.members.length : 0}
-        </p>
-        {currentUser && (
-          <button
-            onClick={handleJoinLeaveCommunity}
-            className={`button ${
-              isMember ? "danger-button" : "primary-button"
-            }`}
-            disabled={isJoining || isLeaving}
-          >
-            {isJoining || isLeaving
-              ? "Processing..."
-              : isMember
-              ? "Leave Community"
-              : "Join Community"}
-          </button>
-        )}
-        {joinLeaveMessage && (
-          <p
-            className={`message ${
-              joinLeaveMessage.includes("successfully") ? "success" : "error"
-            }`}
-          >
-            {joinLeaveMessage}
-          </p>
-        )}
-      </div>
-
-      <div className="community-posts-section">
-        <h2>Community Discussions</h2>
-        {currentUser && isMember && (
-          <div className="add-post-section">
-            <h3>Create a New Post</h3>
-            <form onSubmit={handleCreatePost}>
-              <div className="form-group">
-                <input
-                  type="text"
-                  className="input-field"
-                  placeholder="Post Title"
-                  value={postTitle}
-                  onChange={(e) => setPostTitle(e.target.value)}
-                  disabled={isCreatingPost}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <textarea
-                  className="textarea-field"
-                  placeholder="What's on your mind?"
-                  value={postContent}
-                  onChange={(e) => setPostContent(e.target.value)}
-                  rows="5"
-                  disabled={isCreatingPost}
-                  required
-                ></textarea>
-              </div>
-              <button
-                type="submit"
-                className="button primary-button"
-                disabled={isCreatingPost}
+      <h1 className="text-3xl font-bold mb-4">{community.name}</h1>
+      <p className="text-lg text-gray-700 mb-4">{community.description}</p>
+      <p className="text-gray-600 mb-2">
+        Members: {community.members ? community.members.length : 0}
+      </p>
+      <p className="text-gray-600 mb-4">
+        Created by: {community.creator?.username || "Unknown"}
+      </p>{" "}
+      {/* Handle potential undefined creator */}
+      {currentUser && ( // Show join/leave button only if logged in
+        <div className="mb-4">
+          {isMember ? (
+            <button
+              onClick={handleLeave}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+            >
+              Leave Community
+            </button>
+          ) : (
+            <button
+              onClick={handleJoin}
+              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+            >
+              Join Community
+            </button>
+          )}
+        </div>
+      )}
+      {/* Add a link to create a new post if user is a member */}
+      {currentUser && isMember && (
+        <Link
+          to={`/posts/create?communityId=${community.id}`}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-block mt-4"
+        >
+          Create New Post in this Community
+        </Link>
+      )}
+      <h2 className="text-2xl font-bold mt-8 mb-4">Community Posts</h2>
+      {community.posts && community.posts.length > 0 ? (
+        <ul>
+          {community.posts.map((post) => (
+            <li
+              key={post.id}
+              className="bg-gray-100 p-4 rounded-lg shadow mb-3"
+            >
+              <Link
+                to={`/posts/${post.id}`}
+                className="text-lg font-semibold hover:underline"
               >
-                {isCreatingPost ? "Creating Post..." : "Create Post"}
-              </button>
-              {postMessage && (
-                <p
-                  className={`message ${
-                    postMessage.includes("successfully") ? "success" : "error"
-                  }`}
-                >
-                  {postMessage}
-                </p>
-              )}
-            </form>
-          </div>
-        )}
-
-        {isPostsLoading ? (
-          <p>Loading posts...</p>
-        ) : postsError ? (
-          <p className="error">
-            Error loading posts:{" "}
-            {postsError.message || JSON.stringify(postsError)}
-          </p>
-        ) : communityPosts.length > 0 ? (
-          <ul className="post-list">
-            {communityPosts.map((post) => (
-              <li key={post.id} className="post-item">
-                <Link to={`/posts/${post.id}`}>
-                  <h3>{post.title}</h3>
-                  <p>
-                    By {post.author_username} on{" "}
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No posts in this community yet.</p>
-        )}
-      </div>
-
-      <div className="community-members-section">
-        <h2>Members</h2>
-        {community.members && community.members.length > 0 ? (
-          <ul className="member-list">
-            {community.members.map((member) => (
-              <li key={member.id}>{member.username}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>No members yet.</p>
-        )}
-      </div>
+                {post.title}
+              </Link>
+              <p className="text-sm text-gray-600">
+                by {post.author?.username || "Unknown"} on{" "}
+                {new Date(post.created_at).toLocaleDateString()}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No posts in this community yet.</p>
+      )}
     </div>
   );
 }

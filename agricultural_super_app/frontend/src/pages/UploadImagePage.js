@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext"; // Needed for current user info/token
-import { useUploadImageMutation } from "../redux/api/uploadApiSlice"; // We'll create this slice next!
+import { useSelector } from "react-redux"; // CORRECT: Import useSelector
+import { Link } from "react-router-dom"; // Added Link for navigation
+import { useUploadImageMutation } from "../redux/api/apiSlice"; // CORRECT: Import useUploadImageMutation from apiSlice
 
 function UploadImagePage() {
-  const { currentUser } = useAuth();
+  const { currentUser, token } = useSelector((state) => state.auth); // CORRECT: Get currentUser and token from Redux
   const [selectedFile, setSelectedFile] = useState(null);
-  const [filePreview, setFilePreview] = useState(null); // To show image preview
+  const [filePreview, setFilePreview] = useState(null);
+  const [message, setMessage] = useState("");
+
   const [uploadImage, { isLoading, isError, isSuccess, error }] =
     useUploadImageMutation();
 
@@ -13,7 +16,8 @@ function UploadImagePage() {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setFilePreview(URL.createObjectURL(file)); // Create a URL for image preview
+      setFilePreview(URL.createObjectURL(file));
+      setMessage("");
     } else {
       setSelectedFile(null);
       setFilePreview(null);
@@ -22,30 +26,29 @@ function UploadImagePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
 
     if (!currentUser) {
-      alert("You must be logged in to upload an image.");
+      setMessage("You must be logged in to upload an image."); // Changed from alert
       return;
     }
 
     if (!selectedFile) {
-      alert("Please select a file to upload.");
+      setMessage("Please select a file to upload."); // Changed from alert
       return;
     }
 
-    // FormData is required for sending files
     const formData = new FormData();
     formData.append("file", selectedFile); // 'file' must match the key expected by Flask (request.files['file'])
 
     try {
       const response = await uploadImage(formData).unwrap();
-      alert(`Image uploaded successfully! URL: ${response.url}`);
-      setSelectedFile(null); // Clear selected file
-      setFilePreview(null); // Clear preview
-      // You might want to navigate away or show a success message on the page
+      setMessage(`Image uploaded successfully! URL: ${response.url}`);
+      setSelectedFile(null);
+      setFilePreview(null);
     } catch (err) {
       console.error("Failed to upload image:", err);
-      alert(
+      setMessage(
         `Failed to upload image: ${
           err?.data?.message || "Unknown error. Please try again."
         }`
@@ -62,7 +65,13 @@ function UploadImagePage() {
       </p>
 
       {!currentUser && (
-        <p className="login-prompt">Please log in to upload images.</p>
+        <p className="login-prompt">
+          Please{" "}
+          <Link to="/login" className="text-blue-500 hover:underline">
+            log in
+          </Link>{" "}
+          to upload images.
+        </p>
       )}
 
       <form onSubmit={handleSubmit} className="upload-form">
@@ -71,7 +80,7 @@ function UploadImagePage() {
           <input
             type="file"
             id="image-upload"
-            accept="image/*" // Accept any image file types
+            accept="image/*"
             onChange={handleFileChange}
             disabled={!currentUser || isLoading}
           />
@@ -108,6 +117,11 @@ function UploadImagePage() {
             {error?.data?.message || "Check console for details."}
           </p>
         )}
+        {message &&
+          !isSuccess &&
+          !isError && ( // Display general messages
+            <p className="message">{message}</p>
+          )}
       </form>
     </div>
   );

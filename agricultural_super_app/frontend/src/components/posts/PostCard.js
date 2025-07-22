@@ -1,70 +1,75 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useSelector } from "react-redux";
 import {
   useLikePostMutation,
   useUnlikePostMutation,
-} from "../../redux/api/postsApiSlice";
+} from "../../redux/api/apiSlice";
 
 function PostCard({ post }) {
-  const { currentUser } = useAuth();
+  // ALL HOOKS MUST BE CALLED UNCONDITIONALLY AT THE TOP LEVEL
+  const { currentUser } = useSelector((state) => state.auth);
   const [likePost] = useLikePostMutation();
   const [unlikePost] = useUnlikePostMutation();
 
-  const handlePostLikeClick = async () => {
-    if (!currentUser) {
+  // NOW, perform conditional rendering based on the 'post' prop
+  if (!post) {
+    console.warn(
+      "PostCard received a null or undefined post prop, skipping render."
+    );
+    return null; // Return null if post is not valid
+  }
+
+  const handleLike = () => {
+    if (currentUser) {
+      likePost({ postId: post.id });
+    } else {
       alert("Please log in to like a post.");
-      return;
-    }
-    try {
-      const currentUserIdNum = Number(currentUser.id); // <-- Add this for safety
-      const hasLiked = post.likes && post.likes.includes(currentUserIdNum); // <-- Use the number version
-      if (hasLiked) {
-        await unlikePost(post.id);
-      } else {
-        await likePost(post.id);
-      }
-    } catch (err) {
-      console.error("Failed to update post like status:", err);
-      alert(
-        `Could not update post like status: ${
-          err?.data?.message || "Please try again."
-        }`
-      );
     }
   };
 
-  const postHasLiked =
-    currentUser && post.likes && post.likes.includes(Number(currentUser.id)); // <-- Add Number() conversion
-  const postLikesCount = post.likes ? post.likes.length : 0;
+  const handleUnlike = () => {
+    if (currentUser) {
+      unlikePost({ postId: post.id });
+    }
+  };
+
+  const isLikedByUser =
+    currentUser &&
+    post.likes &&
+    Array.isArray(post.likes) &&
+    post.likes.includes(currentUser.id);
+
+  const authorDisplayName = post.author_username || "Anonymous";
+  const commentsCount = post.comments_count || 0;
 
   return (
-    <div className="post-card card">
-      <Link to={`/posts/${post.id}`} className="post-card-link">
-        <h3 className="post-card-title">{post.title}</h3>
-        {/*
-        CRITICAL: post.community_name is not available from backend Post.to_dict()
-        unless you add community_id to Post model and fetch community name in to_dict.
-        For now, I'm removing this to prevent errors.
-        */}
-        <p className="post-card-meta">
-          By <strong>{post.author_username}</strong> on{" "}
-          {new Date(post.created_at).toLocaleDateString()}
-        </p>
-        <p className="post-card-content">{post.content.substring(0, 100)}...</p>{" "}
-        {/* Truncate content */}
-      </Link>
-      <div className="post-card-actions">
-        <button
-          onClick={handlePostLikeClick}
-          className={`button post-like-button ${postHasLiked ? "liked" : ""}`}
-          disabled={!currentUser}
+    <div className="bg-white p-6 rounded-lg shadow-md mb-4">
+      <h3 className="text-xl font-bold mb-2">
+        <Link
+          to={`/posts/${post.id}`}
+          className="text-green-700 hover:underline"
         >
-          {postHasLiked ? "❤️" : "🤍"} ({postLikesCount})
-        </button>
-        <Link to={`/posts/${post.id}`} className="button secondary-button">
-          View Post
+          {post.title}
         </Link>
+      </h3>
+      <p className="text-gray-700 mb-3">{post.content.substring(0, 150)}...</p>
+      <div className="flex justify-between items-center text-sm text-gray-600">
+        <span>Author: {authorDisplayName}</span>
+        <span>Comments: {commentsCount}</span>
+        <span>Likes: {post.likes ? post.likes.length : 0}</span>{" "}
+        {currentUser && (
+          <button
+            onClick={isLikedByUser ? handleUnlike : handleLike}
+            className={`ml-4 px-3 py-1 rounded text-white text-sm ${
+              isLikedByUser
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-blue-500 hover:bg-blue-600"
+            }`}
+          >
+            {isLikedByUser ? "Unlike" : "Like"}
+          </button>
+        )}
       </div>
     </div>
   );

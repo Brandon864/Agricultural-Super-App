@@ -18,63 +18,55 @@ import MarketplaceItemDetailPage from "./pages/MarketplaceItemDetailPage";
 import UploadImagePage from "./pages/UploadImagePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PrivateRoute from "./components/PrivateRoute";
-import { AuthProvider } from "./context/AuthContext"; // You might simplify/remove this later if Redux handles all auth
 import { Provider } from "react-redux";
-import store, { persistor } from "./redux/store"; // Import store AND persistor
-
-// --- Redux Persist Import ---
+import { store, persistor } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 
 function App() {
   return (
     <Provider store={store}>
-      {/* PersistGate wraps your app to delay rendering until state is rehydrated */}
       <PersistGate loading={null} persistor={persistor}>
         <Router>
-          <AuthProvider>
-            <div className="App">
-              <Navbar />
-              <main className="main-content">
-                <Routes>
-                  {/* Public Routes */}
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/communities" element={<CommunitiesPage />} />
-                  <Route path="/posts" element={<PostsListPage />} />
-                  <Route path="/marketplace" element={<MarketplacePage />} />
+          {/* AuthProvider has been removed as Redux now handles authentication */}
+          <div className="App">
+            <Navbar />
+            <main className="main-content">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/communities" element={<CommunitiesPage />} />
+                <Route path="/posts" element={<PostsListPage />} />
+                <Route path="/marketplace" element={<MarketplacePage />} />
+                <Route
+                  path="/marketplace/items/:id"
+                  element={<MarketplaceItemDetailPage />}
+                />
+                <Route path="/posts/:id" element={<PostDetailPage />} />
+
+                {/* Protected Routes (requires user to be logged in) */}
+                <Route element={<PrivateRoute />}>
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/profile" element={<UserProfilePage />} />
                   <Route
-                    path="/marketplace/items/:id"
-                    element={<MarketplaceItemDetailPage />}
+                    path="/communities/create"
+                    element={<CreateCommunityPage />}
                   />
-                  <Route path="/posts/:id" element={<PostDetailPage />} />
+                  <Route path="/communities/:id" element={<CommunityPage />} />
+                  <Route path="/posts/create" element={<CreatePostPage />} />
+                  <Route
+                    path="/marketplace/create"
+                    element={<CreateMarketplaceItemPage />}
+                  />
+                  <Route path="/upload-image" element={<UploadImagePage />} />
+                </Route>
 
-                  {/* Protected Routes (requires user to be logged in) */}
-                  <Route element={<PrivateRoute />}>
-                    <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/profile" element={<UserProfilePage />} />
-                    <Route
-                      path="/communities/create"
-                      element={<CreateCommunityPage />}
-                    />
-                    <Route
-                      path="/communities/:id"
-                      element={<CommunityPage />}
-                    />
-                    <Route path="/posts/create" element={<CreatePostPage />} />
-                    <Route
-                      path="/marketplace/create"
-                      element={<CreateMarketplaceItemPage />}
-                    />
-                    <Route path="/upload-image" element={<UploadImagePage />} />
-                  </Route>
-
-                  {/* Catch-all for undefined routes */}
-                  <Route path="*" element={<NotFoundPage />} />
-                </Routes>
-              </main>
-            </div>
-          </AuthProvider>
+                {/* Catch-all for undefined routes */}
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </main>
+          </div>
         </Router>
       </PersistGate>
     </Provider>

@@ -1,12 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { apiSlice } from "../api/apiSlice"; // Import apiSlice to extend it
+// Removed: import { apiSlice } from "../api/apiSlice"; (not needed here anymore)
 
 const token = localStorage.getItem("token");
-const user = localStorage.getItem("user");
+const userString = localStorage.getItem("user");
+
+const currentUser =
+  userString && userString !== "undefined" && userString !== "null"
+    ? JSON.parse(userString)
+    : null;
 
 const initialState = {
   token: token || null,
-  currentUser: user ? JSON.parse(user) : null,
+  currentUser: currentUser,
 };
 
 const authSlice = createSlice({
@@ -14,7 +19,6 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setCredentials: (state, { payload }) => {
-      // Expects payload = { token: '...', user: { id: '...', username: '...' } }
       state.token = payload.token;
       state.currentUser = payload.user;
       localStorage.setItem("token", payload.token);
@@ -29,35 +33,8 @@ const authSlice = createSlice({
   },
 });
 
-// Extend the apiSlice with auth-related endpoints
-export const authApiSlice = apiSlice.injectEndpoints({
-  endpoints: (builder) => ({
-    register: builder.mutation({
-      query: (credentials) => ({
-        url: "/register",
-        method: "POST",
-        body: credentials,
-      }),
-    }),
-    login: builder.mutation({
-      query: (credentials) => ({
-        url: "/login",
-        method: "POST",
-        body: credentials,
-      }),
-    }),
-    getUser: builder.query({
-      query: () => "/profile", // Changed from "/user" to "/profile" based on Flask app.py
-      providesTags: ["User"], // Tag for caching, used by AuthContext
-    }),
-  }),
-});
-
-export const {
-  useRegisterMutation,
-  useLoginMutation,
-  useGetUserQuery, // Export the query hook for AuthContext
-} = authApiSlice;
+// REMOVED: authApiSlice.injectEndpoints(...) block
+// REMOVED: export const { useRegisterMutation, useLoginMutation, ... } = authApiSlice;
 
 export const { setCredentials, logout } = authSlice.actions;
 

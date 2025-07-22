@@ -1,44 +1,45 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom"; // Link removed
-import { useAuth } from "../context/AuthContext";
+import { useParams, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
-  useGetPostQuery,
-  useAddCommentMutation,
-  useGetCommentsByPostIdQuery,
+  useGetPostDetailQuery,
+  useAddCommentToPostMutation,
+  useGetCommentsForPostQuery,
   useLikePostMutation,
   useUnlikePostMutation,
-} from "../redux/api/postsApiSlice";
+} from "../redux/api/apiSlice";
 import CommentItem from "../components/CommentItem";
 
 function PostDetailPage() {
   const { id: postId } = useParams();
-  const { currentUser } = useAuth();
+  const { currentUser } = useSelector((state) => state.auth);
   const [newCommentText, setNewCommentText] = useState("");
-  const commentsEndRef = useRef(null); // Ref to scroll to new comments
+  const commentsEndRef = useRef(null);
 
   const {
     data: post,
     isLoading: isLoadingPost,
     error: postError,
-    // refetch: refetchPost, // Removed as it's not explicitly used
-  } = useGetPostQuery(postId);
+    refetch: refetchPostDetail,
+  } = useGetPostDetailQuery(postId);
+
   const {
     data: comments = [],
     isLoading: isLoadingComments,
     error: commentsError,
     refetch: refetchComments,
-  } = useGetCommentsByPostIdQuery(postId);
+  } = useGetCommentsForPostQuery(postId);
 
-  const [addComment, { isLoading: isAddingComment }] = useAddCommentMutation();
+  const [addComment, { isLoading: isAddingComment }] =
+    useAddCommentToPostMutation();
   const [likePost] = useLikePostMutation();
   const [unlikePost] = useUnlikePostMutation();
 
   useEffect(() => {
-    // Scroll to the latest comment when new comments are added
     if (commentsEndRef.current) {
       commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [comments]); // Depend on comments array changing
+  }, [comments]);
 
   if (isLoadingPost)
     return <div className="loading-message">Loading post...</div>;
@@ -62,15 +63,13 @@ function PostDetailPage() {
     }
 
     try {
-      // For a top-level comment, parentCommentId is implicitly null
       await addComment({
         postId,
-        text: newCommentText,
-        parentCommentId: null,
-      }).unwrap(); // Explicitly pass null
+        commentData: { text: newCommentText, parent_comment_id: null }, // Changed 'content' to 'text' based on your Comment model
+      }).unwrap();
       setNewCommentText("");
-      // refetchComments() is handled by RTK Query cache invalidation
-      // The optimistic update in postsApiSlice means we don't need a direct refetch here
+      refetchComments();
+      refetchPostDetail();
     } catch (err) {
       console.error("Failed to add comment:", err);
       alert(
@@ -85,14 +84,17 @@ function PostDetailPage() {
       return;
     }
     try {
-      const currentUserIdNum = Number(currentUser.id);
-      const hasLiked = post.likes && post.likes.includes(currentUserIdNum);
+      const isLikedByUser =
+        post.likes &&
+        Array.isArray(post.likes) &&
+        post.likes.includes(currentUser.id);
 
-      if (hasLiked) {
-        await unlikePost(postId);
+      if (isLikedByUser) {
+        await unlikePost({ postId });
       } else {
-        await likePost(postId);
+        await likePost({ postId });
       }
+      refetchPostDetail();
     } catch (err) {
       console.error("Failed to update post like status:", err);
       alert(
@@ -104,7 +106,10 @@ function PostDetailPage() {
   };
 
   const postHasLiked =
-    currentUser && post.likes && post.likes.includes(Number(currentUser.id));
+    currentUser &&
+    post.likes &&
+    Array.isArray(post.likes) &&
+    post.likes.includes(currentUser.id);
   const postLikesCount = post.likes ? post.likes.length : 0;
 
   const buildCommentTree = (flatComments) => {
@@ -153,9 +158,30 @@ function PostDetailPage() {
       <div className="post-detail-card card">
         <h1 className="post-detail-title">{post.title}</h1>
         <p className="post-detail-meta">
-          By <strong>{post.author_username}</strong> on{" "}
+          By <strong>{post.author_username || "Unknown"}</strong> on{" "}
           {new Date(post.created_at).toLocaleDateString()}
         </p>
+        {/*
+          CRITICAL FIX: Conditionally render the community link.
+          This prevents errors if 'post.community' is undefined.
+          You should still re-enable the community relationship in app.py if posts
+          are meant to have communities.
+        */}
+        {post.community && post.community.id && post.community.name ? (
+          <p className="text-gray-600 mb-4">
+            Community:{" "}
+            <Link
+              to={`/communities/${post.community.id}`}
+              className="hover:underline text-blue-500"
+            >
+              {post.community.name}
+            </Link>
+          </p>
+        ) : (
+          // Optional: Display a message or nothing if no community is associated
+          <p className="text-gray-600 mb-4">Community: N/A</p>
+        )}
+
         <div className="post-detail-content">
           <p>{post.content}</p>
         </div>
@@ -216,7 +242,13 @@ function PostDetailPage() {
             {isAddingComment ? "Adding..." : "Add Comment"}
           </button>
           {!currentUser && (
-            <p className="login-prompt">Please log in to add comments.</p>
+            <p className="login-prompt">
+              Please{" "}
+              <Link to="/login" className="text-blue-500 hover:underline">
+                log in
+              </Link>{" "}
+              to add comments.
+            </p>
           )}
         </form>
       </div>

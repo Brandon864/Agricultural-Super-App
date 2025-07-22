@@ -1,9 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useGetMarketplaceItemsQuery } from "../redux/api/marketplaceApiSlice"; // NEW: Import the hook
+// CORRECT: Import from your main apiSlice
+import { useGetMarketplaceItemsQuery } from "../redux/api/apiSlice";
 
 function MarketplacePage() {
-  // NEW: Use the RTK Query hook to fetch marketplace items
+  // Use the correct RTK Query hook from apiSlice
   const {
     data: marketplaceItems,
     isLoading,
@@ -49,8 +50,10 @@ function MarketplacePage() {
           marketplaceItems.map((item) => (
             <div key={item.id} className="marketplace-item-card card">
               <h2>{item.title}</h2>
+              {/* Ensure item.price is not null/undefined before toFixed */}
               <p className="item-price">
-                Ksh {item.price.toFixed(2)} {item.unit_of_measure}
+                Ksh {item.price != null ? item.price.toFixed(2) : "N/A"}{" "}
+                {item.unit_of_measure}
               </p>
               <p className="item-description">{item.description}</p>
               <p className="item-category">Category: {item.category}</p>
@@ -59,7 +62,6 @@ function MarketplacePage() {
               <p className="item-quantity">
                 Available: {item.quantity_available}
               </p>
-              {/* You might add a Link to a detail page for each item later */}
               <Link
                 to={`/marketplace/items/${item.id}`}
                 className="button secondary-button"

@@ -1,13 +1,17 @@
 // agricultural_super_app/frontend/src/pages/DashboardPage.js
 import React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useGetPostsQuery } from "../redux/api/postsApiSlice";
-import { useGetCommunitiesQuery } from "../redux/api/communitiesApiSlice";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import {
+  useGetPostsQuery,
+  useGetCommunitiesQuery,
+} from "../redux/api/apiSlice";
 
 function DashboardPage() {
-  const { currentUser, isLoading: authLoading, error: authError } = useAuth();
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.auth);
 
+  // --- CORRECTED: RTK Query hooks must be called UNCONDITIONALLY at the top level ---
   const {
     data: posts,
     isLoading: postsLoading,
@@ -18,56 +22,54 @@ function DashboardPage() {
     isLoading: communitiesLoading,
     error: communitiesError,
   } = useGetCommunitiesQuery();
+  // --- END CORRECTED ---
 
-  if (authLoading || postsLoading || communitiesLoading) {
+  // Now, handle the redirect if not logged in. This check comes AFTER all hooks.
+  if (!currentUser) {
+    navigate("/login");
+    return null; // Prevent rendering the rest of the component if redirecting
+  }
+
+  // Handle loading states for data *after* currentUser is confirmed
+  if (postsLoading || communitiesLoading) {
     return (
       <div className="page-container">
-        <p>Loading dashboard...</p>
+        <p>Loading dashboard data...</p>
       </div>
     );
   }
 
-  if (authError) {
-    return (
-      <div className="page-container">
-        <p className="error">
-          Authentication error: {authError.message || "Please log in again."}
-        </p>
-        <Link to="/login" className="button primary-button">
-          Login
-        </Link>
-      </div>
-    );
-  }
-
+  // Handle errors for data *after* currentUser is confirmed
   if (postsError || communitiesError) {
     return (
       <div className="page-container">
-        <p className="error">Error loading dashboard data.</p>
-      </div>
-    );
-  }
-
-  if (!currentUser) {
-    return (
-      <div className="page-container">
-        <p>Please log in to view the dashboard.</p>
+        <p className="error">
+          Error loading dashboard data:{" "}
+          {postsError?.data?.message ||
+            communitiesError?.data?.message ||
+            "An unexpected error occurred."}
+        </p>
+        {/* Optional: Add a link to login or refresh if the error is auth-related */}
+        {postsError?.status === 401 || communitiesError?.status === 401 ? (
+          <Link to="/login" className="button primary-button">
+            Login
+          </Link>
+        ) : null}
       </div>
     );
   }
 
   // Defensive check: Ensure communities and community.members are arrays before filtering
+  // Assuming community.members is an array of user IDs.
   const userCommunities =
     communities && Array.isArray(communities)
       ? communities.filter(
           (community) =>
-            community.members && Array.isArray(community.members) // Ensure community.members is an array
-              ? community.members.some(
-                  (memberId) => memberId === currentUser.id
-                ) // Compare with memberId directly
-              : false // If members is not an array, this community doesn't match
+            community.members &&
+            Array.isArray(community.members) &&
+            community.members.some((memberId) => memberId === currentUser.id)
         )
-      : []; // Default to empty array if communities is not an array or null
+      : [];
 
   return (
     <div className="page-container dashboard-page">
@@ -82,12 +84,12 @@ function DashboardPage() {
       <div className="content-grid">
         <div className="card">
           <h2>Latest Posts</h2>
-          {posts && Array.isArray(posts) && posts.length > 0 ? ( // Added Array.isArray check
+          {posts && Array.isArray(posts) && posts.length > 0 ? (
             <ul className="dashboard-list">
               {posts.slice(0, 5).map((post) => (
                 <li key={post.id}>
                   <Link to={`/posts/${post.id}`}>{post.title}</Link> - by{" "}
-                  {post.author_username}
+                  {post.author_username || "Unknown"}
                 </li>
               ))}
             </ul>
@@ -95,13 +97,13 @@ function DashboardPage() {
             <p>No posts available yet. Be the first to create one!</p>
           )}
           <Link to="/posts" className="button secondary-button">
-            View All Posts (placeholder)
+            View All Posts
           </Link>
         </div>
 
         <div className="card">
           <h2>My Communities</h2>
-          {userCommunities.length > 0 ? ( // userCommunities is already an array due to default []
+          {userCommunities.length > 0 ? (
             <ul className="dashboard-list">
               {userCommunities.slice(0, 5).map((community) => (
                 <li key={community.id}>
@@ -139,7 +141,12 @@ function DashboardPage() {
             </li>
             <li>
               <Link to="/marketplace" className="nav-link">
-                Visit Marketplace (placeholder)
+                Visit Marketplace
+              </Link>
+            </li>
+            <li>
+              <Link to="/upload-image" className="nav-link">
+                Upload Image
               </Link>
             </li>
           </ul>

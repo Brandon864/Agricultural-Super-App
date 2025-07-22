@@ -1,16 +1,18 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
-import { useGetMarketplaceItemQuery } from "../redux/api/marketplaceApiSlice";
+// CORRECT: Import from your main apiSlice
+import { useGetMarketplaceItemDetailQuery } from "../redux/api/apiSlice";
 
 function MarketplaceItemDetailPage() {
   const { id } = useParams();
 
+  // Use the correct hook: useGetMarketplaceItemDetailQuery
   const {
     data: item,
     isLoading,
     isError,
     error,
-  } = useGetMarketplaceItemQuery(id);
+  } = useGetMarketplaceItemDetailQuery(id);
 
   if (isLoading) {
     return (
@@ -53,8 +55,10 @@ function MarketplaceItemDetailPage() {
           </div>
         )}
         <h1>{item.title}</h1>
+        {/* Ensure item.price is not null/undefined before toFixed */}
         <p className="item-detail-price">
-          <strong>Price:</strong> Ksh {item.price.toFixed(2)}{" "}
+          <strong>Price:</strong> Ksh{" "}
+          {item.price != null ? item.price.toFixed(2) : "N/A"}{" "}
           {item.unit_of_measure}
         </p>
         <p className="item-detail-description">

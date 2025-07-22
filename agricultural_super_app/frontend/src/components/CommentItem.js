@@ -1,32 +1,35 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useSelector } from "react-redux"; // CORRECT: Import useSelector
 import {
   useLikeCommentMutation,
   useUnlikeCommentMutation,
-  useAddCommentMutation, // Need this to add replies
-} from "../redux/api/postsApiSlice";
+  useAddCommentToPostMutation, // Using this for replies, as per apiSlice
+} from "../redux/api/apiSlice"; // CORRECT: Import from apiSlice
 
 function CommentItem({
   comment,
-  postId,
-  commentsMap,
-  onReplySuccess,
+  postId, // Passed from parent (PostDetailPage)
+  commentsMap, // Still needed for recursive rendering
+  onReplySuccess, // Callback for parent to re-fetch/update
   level = 0,
 }) {
-  const { currentUser } = useAuth();
+  const { currentUser } = useSelector((state) => state.auth); // CORRECT: Get currentUser from Redux state
   const [showReplyForm, setShowReplyForm] = useState(false);
-  // Initialize replyText based on whether we are showing the form and tagging
   const [replyText, setReplyText] = useState("");
 
   const [likeComment] = useLikeCommentMutation();
   const [unlikeComment] = useUnlikeCommentMutation();
-  const [addComment, { isLoading: isAddingReply }] = useAddCommentMutation();
+  const [addComment, { isLoading: isAddingReply }] =
+    useAddCommentToPostMutation(); // Use correct mutation
 
   // Determine if current user has liked this comment
+  // Ensure comment.likes is an array and IDs are comparable (assuming currentUser.id is a number)
   const hasLiked =
     currentUser &&
     comment.likes &&
-    comment.likes.includes(Number(currentUser.id)); // <-- Add Number() conversion
+    Array.isArray(comment.likes) &&
+    comment.likes.includes(currentUser.id);
+
   const likesCount = comment.likes ? comment.likes.length : 0;
 
   // Find children comments for this comment
@@ -41,9 +44,9 @@ function CommentItem({
     }
     try {
       if (hasLiked) {
-        await unlikeComment({ commentId: comment.id, postId: postId });
+        await unlikeComment({ commentId: comment.id });
       } else {
-        await likeComment({ commentId: comment.id, postId: postId });
+        await likeComment({ commentId: comment.id });
       }
     } catch (err) {
       console.error("Failed to update comment like status:", err);
@@ -67,17 +70,19 @@ function CommentItem({
     }
 
     try {
+      // Ensure the 'commentData' structure matches what your backend expects for 'addCommentToPost'
       await addComment({
         postId: postId,
-        text: replyText,
-        parentCommentId: comment.id, // This comment's ID is the parent_comment_id for the reply
+        commentData: {
+          content: replyText, // Using 'content' as per previous discussions for comment text
+          parent_comment_id: comment.id, // This comment's ID is the parent_comment_id for the reply
+        },
       }).unwrap();
       setReplyText(""); // Clear reply input
       setShowReplyForm(false); // Hide reply form
       if (onReplySuccess) {
         onReplySuccess(); // Callback to potentially re-fetch or update parent state if needed
       }
-      // No alert here, as the parent component will re-render
     } catch (err) {
       console.error("Failed to add reply:", err);
       alert(
@@ -86,21 +91,21 @@ function CommentItem({
     }
   };
 
-  // NEW: Function to toggle reply form and pre-fill text
   const toggleReplyForm = () => {
     if (!currentUser) {
       alert("Please log in to reply to comments.");
       return;
     }
     if (!showReplyForm) {
-      setReplyText(`@${comment.author_username} `); // Pre-fill with username and a space
+      // Pre-fill with author's username for tagging
+      const authorName = comment.author?.username || comment.author_username; // Use comment.author.username if available
+      setReplyText(`@${authorName} `);
     } else {
-      setReplyText(""); // Clear if hiding
+      setReplyText("");
     }
-    setShowReplyForm(!showReplyForm); // Toggle visibility
+    setShowReplyForm(!showReplyForm);
   };
 
-  // Dynamically adjust padding for nested comments
   const paddingLeft = `${level * 20}px`; // 20px per level of nesting
 
   return (
@@ -109,10 +114,11 @@ function CommentItem({
       style={{ paddingLeft: paddingLeft }}
     >
       <p className="comment-author">
-        <strong>{comment.author_username}</strong> on{" "}
-        {new Date(comment.created_at).toLocaleDateString()}
+        <strong>{comment.author?.username || comment.author_username}</strong>{" "}
+        on {new Date(comment.created_at).toLocaleDateString()}
       </p>
-      <p className="comment-text">{comment.text}</p>
+      <p className="comment-text">{comment.content || comment.text}</p>{" "}
+      {/* Use comment.content or comment.text */}
       <div className="comment-actions">
         <button
           onClick={handleLikeClick}
@@ -122,20 +128,21 @@ function CommentItem({
           {hasLiked ? "❤️" : "🤍"} ({likesCount})
         </button>
         <button
-          onClick={toggleReplyForm} // Use the new toggle function
+          onClick={toggleReplyForm}
           className="button secondary-button"
           disabled={!currentUser}
         >
           {showReplyForm ? "Cancel Reply" : "Reply"}
         </button>
       </div>
-
       {showReplyForm && (
         <form onSubmit={handleReplySubmit} className="reply-form">
           <textarea
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder={`Reply to ${comment.author_username}...`}
+            placeholder={`Reply to ${
+              comment.author?.username || comment.author_username
+            }...`}
             rows="2"
             required
           ></textarea>
@@ -148,7 +155,6 @@ function CommentItem({
           </button>
         </form>
       )}
-
       {/* Recursively render children comments */}
       {childrenComments.length > 0 && (
         <div className="comment-replies">
