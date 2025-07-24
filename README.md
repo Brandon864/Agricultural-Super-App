@@ -63,4 +63,4 @@ Follow the instructions in the `backend/README.md` and `frontend/README.md` to s
     git commit -m "docs: Update README with messaging features and project structure"
     ```
 
-Let me know once you've made this commit!
+
