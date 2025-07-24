@@ -1,6 +1,4 @@
-/* src/index.css or src/App.css */
-
-/* Basic Reset for consistent styling */
+/* General Reset and Base Styles */
 *,
 *::before,
 *::after {
@@ -9,3391 +7,1455 @@
   padding: 0;
 }
 
-body {
-  font-family: Arial, sans-serif;
+/* CSS Variables Definition */
+:root {
+  --primary-color: #4CAF50;
+  --secondary-color: #008CBA;
+  --danger-color: #f44336;
+
+  --background-color: bisque;
+  --text-color: #333;
+  --light-gray: #f9f9f9;
+  --medium-gray: #eee;
+  --dark-gray: #555;
+  --border-color: #ddd;
+
+  --spacing-extra-small: 0.25rem;
+  --spacing-small: 0.5rem;
+  --spacing-medium: 1rem;
+  --spacing-large: 1.5rem;
+  --spacing-extra-large: 2rem;
+
+  --border-radius: 8px;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --hover-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+html, body, #root {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color);
+  color: var(--text-color);
   line-height: 1.6;
-  color: #333;
-  background-color: #f4f4f4;
-  font-size: 16px; /* Base font size for mobile */
 }
 
-/* Make images responsive */
-img {
-  max-width: 100%;
-  height: auto;
-  display: block; /* Removes extra space below images */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-/* Base styles for links */
+/* App Container */
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main Content Area */
+.main-content, .content-area {
+  flex-grow: 1;
+  padding: var(--spacing-large);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Typography */
+h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.8em;
+  text-align: center;
+}
+
+h2 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 0.7em;
+  text-align: center;
+}
+
+h3 {
+  font-size: 1.6rem;
+  color: #2c3e50;
+  margin-bottom: 0.6em;
+}
+
+p {
+  font-size: 1rem;
+  color: var(--dark-gray);
+  line-height: 1.6;
+  margin-bottom: 1em;
+}
+
+/* Links */
 a {
   color: #007bff;
   text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
 }
 
 a:hover {
   text-decoration: underline;
+  color: #0056b3;
 }
 
-/* --- Responsive Typography Scale (Optional but good) --- */
-/* You might adjust these based on your design system */
-h1 {
-  font-size: 2em; /* 2 times the base font size (32px) */
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Buttons */
+.button {
+  padding: 0.8em 1.5em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.primary-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.primary-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.secondary-button {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.secondary-button:hover {
+  background-color: #007bb5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.danger-button, .logout-button {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.danger-button:hover, .logout-button:hover {
+  background-color: #da190b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.outline-button {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.outline-button:hover {
+  background-color: #e6ffe6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+/* Forms */
+.form-container {
+  max-width: 500px;
+  margin: var(--spacing-extra-large) auto;
+  padding: var(--spacing-extra-large);
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--dark-gray);
+  font-size: 0.95rem;
+}
+
+.input-field, .textarea-field, .select-field {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  color: var(--dark-gray);
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field:focus, .textarea-field:focus, .select-field:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.textarea-field {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-container .primary-button,
+.form-container .submit-button {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    margin-top: var(--spacing-medium);
+}
+
+/* Messages */
+.message {
+  padding: 0.8rem 1rem;
+  border-radius: 5px;
+  margin-top: var(--spacing-medium);
+  font-size: 0.95rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.loading-message, .no-content-message {
+  text-align: center;
+  padding: var(--spacing-extra-large);
+  color: var(--dark-gray);
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+/* Navbar */
+.navbar, .app-header, .main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2c3e50;
+  padding: var(--spacing-medium) var(--spacing-large);
+  color: white;
+  box-shadow: var(--box-shadow);
+  flex-wrap: wrap;
+}
+
+.navbar-brand, .app-logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+  margin-right: var(--spacing-medium);
+}
+
+.nav-links, .header-nav, .navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.nav-link, .navbar-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-link:hover, .navbar-link:hover {
+  color: #e0e0e0;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.welcome-message {
+  font-size: 0.95rem;
+  color: #f0f0f0;
+  margin-left: var(--spacing-medium);
+  white-space: nowrap;
+}
+
+.header-button {
+  margin-left: var(--spacing-medium);
+}
+
+/* Navbar Search Input Styling */
+.navbar .search-form-navbar {
+    display: flex;
+    align-items: center;
+    margin-left: var(--spacing-large);
+    flex-grow: 1;
+    max-width: 300px;
+    margin-top: 0;
+}
+
+.navbar .search-input-navbar {
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px 0 0 4px;
+    border: 1px solid #ccc;
+    outline: none;
+    color: #333;
+    font-size: 0.9rem;
+    flex-grow: 1;
+}
+
+.navbar .search-button-navbar {
+    background: var(--primary-color);
+    color: white;
+    border: 1px solid var(--primary-color);
+    padding: 0.4rem 0.8rem;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.navbar .search-button-navbar:hover {
+    background: #45a049;
+    border-color: #45a049;
+}
+
+.navbar .search-icon-navbar {
+    height: 1.1rem;
+    width: 1.1rem;
+}
+
+/* Page Containers */
+.page-container {
+  padding: var(--spacing-large);
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin: var(--spacing-large) auto;
+  max-width: 900px;
+  width: 100%;
+}
+
+/* Post Card */
+.post-card {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-medium);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  width: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.post-card .post-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-style: italic;
+}
+
+.post-card .post-content {
+  padding: var(--spacing-medium);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.post-card h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-small);
+  font-size: 1.5em;
+  color: #34495e;
+  font-weight: bold;
+}
+
+.post-card h3 a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.post-card h3 a:hover {
+  text-decoration: underline;
+}
+
+.post-card .post-author {
+  font-size: 0.9em;
+  color: var(--dark-gray);
+  margin-bottom: var(--spacing-small);
+}
+
+.post-card p {
+  margin-bottom: var(--spacing-medium);
+  flex-grow: 1;
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.post-card .read-more {
+  align-self: flex-start;
+  padding: 8px 15px;
+  background-color: var(--secondary-color);
+  color: white;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.post-card .read-more:hover {
+  background-color: #2980b9;
+  text-decoration: none;
+}
+
+.post-card-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #95a5a6;
+  border-top: 1px solid #eee;
+  padding-top: 0.8rem;
+  margin-top: auto;
+}
+
+/* Post List */
+.post-list, .posts-list, .post-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-large);
+  margin-top: var(--spacing-large);
+}
+
+.post-list-section {
+  padding: var(--spacing-medium);
+  max-width: 900px;
+  margin: var(--spacing-large) auto;
+}
+
+/* Community Card */
+.community-card, .community-list-item {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 180px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.community-card:hover, .community-list-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--hover-box-shadow);
+}
+
+.community-card h3, .community-list-item h3 {
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.community-card p, .community-list-item p {
+  color: #666;
+  font-size: 0.9rem;
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.community-card .member-count {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 0.8rem;
+}
+
+.community-card .community-actions {
+  margin-top: var(--spacing-medium);
+  text-align: right;
+}
+
+.community-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-large);
+  margin-top: var(--spacing-large);
+}
+
+/* Community Page */
+.community-details-container {
+  padding: var(--spacing-large);
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: var(--spacing-large);
+}
+
+.community-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: var(--spacing-medium);
+  text-align: left;
+}
+
+.community-details p {
+  font-size: 1rem;
+  color: var(--dark-gray);
+  line-height: 1.6;
+}
+
+.community-posts-section h2, .community-members-section h2 {
+  color: var(--primary-color);
+  font-size: 2rem;
+  text-align: center;
+  margin-top: var(--spacing-extra-large);
+  margin-bottom: var(--spacing-large);
+}
+
+/* Post Detail Page */
+.post-detail-page, .single-post-container {
+  max-width: 800px;
+  margin: var(--spacing-large) auto;
+  background-color: white;
+  padding: var(--spacing-extra-large);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.post-content h1 {
+  font-size: 2.2rem;
+  color: #2c3e50;
+  margin-bottom: var(--spacing-medium);
+  text-align: left;
+}
+
+.post-body, .single-post-content {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #444;
+  margin-bottom: var(--spacing-extra-large);
+}
+
+.single-post-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-large);
+}
+
+.single-post-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: var(--spacing-extra-large);
+}
+
+/* Comments */
+.comments-section {
+  margin-top: var(--spacing-extra-large);
+  border-top: 1px solid var(--medium-gray);
+  padding-top: var(--spacing-large);
+}
+
+.comments-section h2 {
+  font-size: 1.8rem;
+  color: var(--primary-color);
+  text-align: left;
+  margin-bottom: var(--spacing-large);
+}
+
+.comment-list {
+  list-style: none;
+  padding: 0;
+}
+
+.comment-item, .comment-card {
+  background-color: var(--light-gray);
+  padding: var(--spacing-medium);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-medium);
+  border: 1px solid var(--medium-gray);
+}
+
+.comment-author {
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 0.3rem;
+  font-size: 0.95rem;
+}
+
+.comment-text, .comment-content {
+  font-size: 0.95rem;
+  color: var(--dark-gray);
+  margin-bottom: 0.5rem;
+}
+
+.comment-date {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.add-comment-section, .add-comment-form {
+  margin-top: var(--spacing-large);
+  padding: var(--spacing-medium);
+  background-color: #f0f0f0;
+  border-radius: var(--border-radius);
+}
+
+.add-comment-section .textarea-field {
+  width: 100%;
+  margin-bottom: var(--spacing-medium);
+}
+
+/* User Profile Page */
+.user-profile-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-large);
+  background-color: var(--light-gray);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  max-width: 800px;
+  margin: var(--spacing-large) auto;
+}
+
+.profile-card {
+  background-color: white;
+  padding: var(--spacing-extra-large);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  margin-bottom: var(--spacing-extra-large);
+  width: 100%;
+  max-width: 500px;
+}
+
+.profile-picture-container {
+  margin-bottom: 1.2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.profile-picture {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--primary-color);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-picture-placeholder {
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  font-size: 0.9rem;
+  margin: 0 auto 1.2rem;
+  border: 1px dashed #bbb;
+}
+
+.profile-heading {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: var(--spacing-large);
+  color: var(--text-color);
+}
+
+.profile-edit-section {
+  margin-top: var(--spacing-extra-large);
+  padding-top: var(--spacing-large);
+  border-top: 1px solid var(--medium-gray);
+  width: 100%;
+}
+
+.profile-edit-section .input-field {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: var(--spacing-medium);
+}
+
+.profile-sections {
+  width: 100%;
+  max-width: 800px;
+  margin-top: var(--spacing-extra-large);
+  display: flex;
+  justify-content: space-around;
+  gap: var(--spacing-large);
+  flex-wrap: wrap;
+}
+
+.profile-sections .section-box {
+  background-color: white;
+  padding: var(--spacing-large);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  min-width: 280px;
+}
+
+/* Dashboard */
+.dashboard-page, .dashboard-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-large);
+  max-width: 800px;
+  margin: var(--spacing-extra-large) auto;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-large);
+  width: 100%;
+}
+
+.card {
+  background-color: white;
+  padding: var(--spacing-large);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.dashboard-list {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  margin-top: 1.2rem;
+}
+
+.dashboard-list li {
+  margin-bottom: 0.8rem;
+  font-size: 1.05rem;
+  color: #444;
+}
+
+/* Quick Links Purple Color Update */
+.dashboard-list li a {
+  color: purple;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.dashboard-list li a:hover {
+  text-decoration: underline;
+  color: #8A2BE2;
+}
+
+.dashboard-list li::before {
+  content: '➡️';
+  font-size: 1.1em;
+  margin-right: 0.6rem;
+}
+
+/* Home Page */
+.homepage-container, .home-welcome {
+  text-align: center;
+  padding: 3rem var(--spacing-large);
+  background-color: #e8f5e9;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: var(--spacing-extra-large) auto;
+}
+
+/* Styles for the "Latest Agricultural Posts" section */
+.latest-posts-section {
+  padding: var(--spacing-large);
+  margin-top: var(--spacing-extra-large);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  text-align: center;
+  background: linear-gradient(145deg, #A7D9F2, #6495ED);
+  color: white;
+}
+
+.latest-posts-section h2 {
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+
+.homepage-container h1 {
+  font-size: 3rem;
+  color: var(--primary-color);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
   margin-bottom: 0.5em;
 }
 
-h2 {
-  font-size: 1.5em; /* 1.5 times base (24px) */
-  margin-bottom: 0.4em;
+.homepage-container p {
+  font-size: 1.1rem;
+  margin-bottom: var(--spacing-large);
 }
 
-p {
-  font-size: 1em; /* Base font size (16px) */
-  margin-bottom: 1em;
+.homepage-buttons .button {
+  margin: 0.5rem;
 }
 
-/* Forms - Basic Styling */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea {
-  width: 100%; /* Full width on mobile */
-  padding: 0.8em;
-  margin-bottom: 1em;
-  border: 1px solid #ddd;
+/* Create Community Page */
+.create-community-page {
+  padding: var(--spacing-large);
+  max-width: 600px;
+  margin: var(--spacing-large) auto;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  text-align: center;
+}
+
+/* Marketplace Item Detail Page Styles */
+.marketplace-item-detail-page h1 {
+  font-size: 2.2rem;
+  color: var(--text-color);
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.item-detail-card {
+  background-color: white;
+  padding: var(--spacing-extra-large);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.item-detail-image {
+  margin-bottom: var(--spacing-large);
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  max-width: 400px;
+}
+
+.item-detail-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--border-radius);
+}
+
+.item-detail-card p {
+  font-size: 1.05rem;
+  color: var(--dark-gray);
+  margin-bottom: 0.8rem;
+  width: 100%;
+  text-align: left;
+}
+
+.item-detail-card p strong {
+  color: var(--text-color);
+  margin-right: 0.3rem;
+}
+
+.item-detail-price {
+  font-size: 1.5rem;
+  color: #28a745;
+  font-weight: bold;
+  margin-top: var(--spacing-medium);
+  margin-bottom: var(--spacing-large);
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+/* Quick Link Enhancements */
+.dashboard-quick-link {
+  background-color: #f39c12;
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.dashboard-quick-link:hover {
+  background-color: #e67e22;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.nav-link.active-nav-link {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: bold;
   border-radius: 4px;
+}
+
+.dashboard-quick-link.active-nav-link {
+  background-color: #d35400;
+}
+
+/* New/Updated CSS classes for UserSearch and UserProfilePage consistency */
+.user-search-page-container {
+  padding: var(--spacing-large);
+}
+
+.user-search-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-medium);
+  text-align: center;
+  color: var(--text-color);
+}
+
+.search-input-group {
+  margin-bottom: var(--spacing-medium);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.search-input {
+  flex-grow: 1;
+}
+
+.search-button {
+  white-space: nowrap;
+}
+
+.user-list-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-medium);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .user-list-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.user-list-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-medium);
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: transform 0.2s ease-in-out;
+}
+
+.user-list-item:hover {
+  transform: translateY(-3px);
+}
+
+.user-avatar {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: var(--spacing-medium);
+  border: 2px solid var(--border-color);
+}
+
+.user-avatar-placeholder {
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #757575;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.user-info {
+  flex-grow: 1;
+}
+
+.user-name-link {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #28a745;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.user-name-link:hover {
+  text-decoration: underline;
+  color: #218838;
+}
+
+.user-bio {
+  color: #616161;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.follow-button {
+  margin-left: var(--spacing-medium);
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.follow-style {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.follow-style:hover {
+  background-color: #45a049;
+  border-color: #45a049;
+}
+
+.unfollow-style {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.unfollow-style:hover {
+  background-color: #c82333;
+  border-color: #c82333;
+}
+
+.profile-heading {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: var(--spacing-large);
+  color: var(--text-color);
+}
+
+.section-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  text-align: center;
+  color: var(--text-color);
+}
+
+/* New Post Form Styles Merged */
+.post-form {
+  background-color: white;
+  padding: var(--spacing-medium);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: var(--spacing-large);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.post-form div {
+  margin-bottom: var(--spacing-small);
+}
+
+.post-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--dark-gray);
+}
+
+.post-form input[type="text"],
+.post-form textarea {
+  width: calc(100% - (var(--spacing-medium) * 2));
+  padding: var(--spacing-small);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
   font-size: 1em;
 }
 
-label {
-  display: block; /* Labels on their own line */
-  margin-bottom: 0.5em;
-  font-weight: bold;
+.post-form textarea {
+  resize: vertical;
 }
-/* src/App.css */
 
-.main-nav {
-    background-color: #333;
-    padding: 1rem;
-    display: flex;
-    flex-wrap: wrap; /* Allows items to wrap onto next line on small screens */
-    justify-content: flex-start; /* Align items to the start */
-    align-items: center;
-    gap: 1rem; /* Space between nav items */
-  }
-  
-  .main-nav .nav-link {
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-    white-space: nowrap; /* Prevent links from breaking text */
-  }
-  
-  .main-nav .nav-link:hover {
-    background-color: #555;
-  }
-  
-  .main-nav .welcome-message {
-    color: white;
-    font-weight: bold;
-    margin-left: auto; /* Pushes this and following items to the right */
-    white-space: nowrap;
-  }
-  
-  .main-nav .logout-button {
-    background-color: #dc3545; /* Red color for logout */
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    white-space: nowrap;
-  }
-  
-  .main-nav .logout-button:hover {
-    background-color: #c82333;
-  }
-  
-  /* Media Query for larger screens (e.g., tablets and desktops) */
-  @media (min-width: 768px) {
-    .main-nav {
-      justify-content: space-between; /* Space out items on larger screens */
-    }
-  
-    /* Pushing welcome message to the right on larger screens is already handled by margin-left: auto */
-  }
-  
-  /* Optional: Center main content */
-  .main-content-wrapper {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 0 15px; /* Add padding on sides for small screens */
-  }
-  /* src/App.css (continued from previous styles) */
+.post-form input[type="file"] {
+  padding: 5px 0;
+}
 
-.post-card {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .post-card .post-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-  }
-  
-  .post-card .post-title {
-    font-size: 1.8em; /* Scale up slightly */
-    margin-bottom: 0.5rem;
-    color: #2c3e50;
-  }
-  
-  .post-card .post-author {
-    font-size: 0.9em;
-    color: #7f8c8d;
-    margin-bottom: 1rem;
-  }
-  
-  .post-card .post-content {
-    font-size: 1em;
-    color: #34495e;
-    line-height: 1.6;
-    margin-bottom: 1.2rem;
-  }
-  
-  .post-card .post-meta {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.9em;
-    color: #95a5a6;
-    margin-top: auto; /* Pushes meta and button to the bottom */
-    margin-bottom: 1rem;
-  }
-  
-  .secondary-button {
-    background-color: #6c757d; /* Gray for secondary action */
-    color: white;
-    border: none;
-    padding: 0.7em 1.2em;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease;
-    align-self: flex-start; /* Align button to the start within flex column */
-  }
-  
-  .secondary-button:hover {
-    background-color: #5a6268;
-  }
-  
-  /* Responsive adjustments for PostCard */
-  @media (min-width: 768px) {
-    .post-card {
-      padding: 2rem;
-    }
-    .post-card .post-title {
-      font-size: 2em;
-    }
-  }
-  /* src/App.css (continued) */
+.post-form button {
+  width: auto;
+  margin-top: var(--spacing-small);
+}
 
-.post-list-section {
-    padding: 1rem;
-    max-width: 900px; /* Limit width for readability */
-    margin: 20px auto;
-  }
-  
-  .post-list-section h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: #2c3e50;
-    font-size: 2.2em; /* Larger heading */
-  }
-  
-  .post-list-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* Single column on mobile */
-    gap: 1.5rem; /* Space between cards */
-  }
-  
-  /* Media Query for larger screens: 2 columns */
-  @media (min-width: 768px) {
-    .post-list-grid {
-      grid-template-columns: repeat(2, 1fr); /* Two columns on larger screens */
-      gap: 2rem;
-    }
-  }
-  
-  /* General messages */
-  .loading-message,
-  .no-content-message {
-    text-align: center;
-    padding: 2rem;
-    color: #555;
-    font-style: italic;
-  }
-  /* General Layout */
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #f4f7f6;
-    color: #333;
-  }
-  
-  .App {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .content-area {
-    flex-grow: 1;
-    padding: 20px;
-    max-width: 1200px; /* Limit content width */
-    margin: 0 auto; /* Center content */
-    width: 100%; /* Ensure it takes full width up to max */
-    box-sizing: border-box; /* Include padding in width */
-  }
-  
-  .page-container {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px; /* Space between sections */
-  }
-  
-  
-  /* Navbar */
+
+/* Responsive Design */
+
+/* Extra small devices (phones, 320px and up) */
+@media (max-width: 575.98px) {
   .navbar {
-    background-color: #2c3e50; /* Darker blue/grey */
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .navbar-brand {
-    color: #ecf0f1; /* Light grey */
-    font-size: 1.5em;
-    font-weight: bold;
-    text-decoration: none;
-  }
-  
-  .navbar-links {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .navbar-link {
-    color: #ecf0f1;
-    text-decoration: none;
-    font-size: 1em;
-    transition: color 0.3s ease;
-  }
-  
-  .navbar-link:hover {
-    color: #3498db; /* Brighter blue on hover */
-  }
-  
-  .navbar-auth {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  
-  .welcome-message {
-    font-size: 0.9em;
-    color: #bdc3c7; /* Lighter grey */
-  }
-  
-  .logout-button {
-    background-color: #e74c3c; /* Red */
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease;
-  }
-  
-  .logout-button:hover {
-    background-color: #c0392b; /* Darker red */
-  }
-  
-  
-  /* Form Styles (for Login, Register, PostForm) */
-  .form-container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    margin: 40px auto;
-    text-align: center;
-  }
-  
-  .form-container h2 {
-    color: #2c3e50;
-    margin-bottom: 25px;
-  }
-  
-  .auth-form {
-    display: flex;
     flex-direction: column;
-    gap: 15px;
+    padding: 0.8rem 1rem;
+    align-items: stretch;
   }
-  
-  .form-group {
-    text-align: left;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #555;
-  }
-  
-  .input-field {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-sizing: border-box; /* Ensures padding doesn't add to total width */
-    font-size: 1em;
-  }
-  
-  .input-field:focus {
-    border-color: #3498db;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-  }
-  
-  .textarea-field {
-    min-height: 120px;
-    resize: vertical;
-  }
-  
-  
-  .primary-button {
-    background-color: #3498db; /* Blue */
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 15px;
-  }
-  
-  .primary-button:hover {
-    background-color: #2980b9; /* Darker blue */
-    transform: translateY(-2px);
-  }
-  
-  .primary-button:disabled {
-    background-color: #aeb6bf;
-    cursor: not-allowed;
-  }
-  
-  .link-text {
-    margin-top: 20px;
-    font-size: 0.9em;
-  }
-  
-  .link-text a {
-    color: #3498db;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  
-  .link-text a:hover {
-    text-decoration: underline;
-  }
-  
-  .error-message {
-    color: #e74c3c;
-    margin-top: 15px;
-    font-size: 0.9em;
-  }
-  
-  .success-message {
-    color: #27ae60;
-    margin-top: 15px;
-    font-size: 0.9em;
-  }
-  
-  /* Home Page Specifics */
-  .home-welcome {
-    text-align: center;
-    margin-bottom: 40px;
-    padding: 20px;
-    background-color: #eaf3f8;
-    border-radius: 8px;
-  }
-  
-  .home-welcome h1 {
-    color: #2c3e50;
-    font-size: 2.5em;
-    margin-bottom: 10px;
-  }
-  
-  .home-welcome p {
-    color: #555;
-    font-size: 1.1em;
-    line-height: 1.6;
-  }
-  
-  .home-sections {
-    margin-top: 40px;
-  }
-  
-  .section-title {
-    color: #2c3e50;
-    font-size: 1.8em;
-    margin-bottom: 25px;
-    text-align: center;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 10px;
-    display: flex;
-    justify-content: center; /* Center the title and line */
-    align-items: center;
-  }
-  
-  /* Post List */
-  .post-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
-    margin-top: 20px;
-  }
-  
-  .post-card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .post-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  }
-  
-  .post-card-image {
-    width: 100%;
-    height: 200px; /* Fixed height for images */
-    object-fit: cover; /* Cover the area, cropping if necessary */
-    background-color: #f0f0f0; /* Placeholder background */
-    display: flex; /* For centering placeholder text */
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    font-style: italic;
-  }
-  
-  .post-card-content {
-    padding: 20px;
-    flex-grow: 1; /* Allow content to take available space */
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .post-card-title {
-    font-size: 1.4em;
-    color: #34495e; /* Darker blue */
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-  
-  .post-card-author {
-    font-size: 0.9em;
-    color: #7f8c8d; /* Grey */
-    margin-bottom: 15px;
-  }
-  
-  .post-card-text {
-    font-size: 0.95em;
-    color: #666;
-    line-height: 1.6;
-    flex-grow: 1; /* Pushes meta to bottom */
-    margin-bottom: 15px;
-  }
-  
-  .post-card-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85em;
-    color: #95a5a6;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
-    margin-top: auto; /* Push to bottom */
-  }
-  
-  
-  /* Dashboard specifics */
-  .dashboard-content {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 40px auto;
-  }
-  
-  .dashboard-content h1 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .dashboard-content p {
-    font-size: 1.1em;
-    color: #555;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
-  .dashboard-features ul {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 30px;
-  }
-  
-  .dashboard-features li {
-    background-color: #ecf0f1;
-    border: 1px solid #dcdcdc;
-    padding: 15px 20px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    font-size: 1em;
-    color: #34495e;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .dashboard-features li::before {
-    content: '➡️'; /* Simple arrow icon */
-    font-size: 1.2em;
-  }
-  /* General Layout */
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #f4f7f6;
-    color: #333;
-  }
-  
-  .App {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .content-area {
-    flex-grow: 1;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  .page-container {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-  
-  
-  /* Navbar */
-  .navbar {
-    background-color: #2c3e50;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .navbar-brand {
-    color: #ecf0f1;
-    font-size: 1.5em;
-    font-weight: bold;
-    text-decoration: none;
-  }
-  
-  .navbar-links {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .navbar-link {
-    color: #ecf0f1;
-    text-decoration: none;
-    font-size: 1em;
-    transition: color 0.3s ease;
-  }
-  
-  .navbar-link:hover {
-    color: #3498db;
-  }
-  
-  .navbar-auth {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  
-  .welcome-message {
-    font-size: 0.9em;
-    color: #bdc3c7;
-  }
-  
-  .logout-button {
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease;
-  }
-  
-  .logout-button:hover {
-    background-color: #c0392b;
-  }
-  
-  
-  /* Form Styles (for Login, Register, PostForm) */
-  .form-container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    margin: 40px auto;
-    text-align: center;
-  }
-  
-  .form-container h2 {
-    color: #2c3e50;
-    margin-bottom: 25px;
-  }
-  
-  .auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .form-group {
-    text-align: left;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #555;
-  }
-  
-  .input-field {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-sizing: border-box;
-    font-size: 1em;
-  }
-  
-  .input-field:focus {
-    border-color: #3498db;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-  }
-  
-  .textarea-field {
-    min-height: 120px;
-    resize: vertical;
-  }
-  
-  
-  .primary-button {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 15px;
-  }
-  
-  .primary-button:hover {
-    background-color: #2980b9;
-    transform: translateY(-2px);
-  }
-  
-  .primary-button:disabled {
-    background-color: #aeb6bf;
-    cursor: not-allowed;
-  }
-  
-  .link-text {
-    margin-top: 20px;
-    font-size: 0.9em;
-  }
-  
-  .link-text a {
-    color: #3498db;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  
-  .link-text a:hover {
-    text-decoration: underline;
-  }
-  
-  .error-message {
-    color: #e74c3c;
-    margin-top: 15px;
-    font-size: 0.9em;
-  }
-  
-  .success-message {
-    color: #27ae60;
-    margin-top: 15px;
-    font-size: 0.9em;
-  }
-  
-  /* Home Page Specifics */
-  .home-welcome {
-    text-align: center;
-    margin-bottom: 40px;
-    padding: 20px;
-    background-color: #eaf3f8;
-    border-radius: 8px;
-  }
-  
-  .home-welcome h1 {
-    color: #2c3e50;
-    font-size: 2.5em;
-    margin-bottom: 10px;
-  }
-  
-  .home-welcome p {
-    color: #555;
-    font-size: 1.1em;
-    line-height: 1.6;
-  }
-  
-  .home-sections {
-    margin-top: 40px;
-  }
-  
-  .section-title {
-    color: #2c3e50;
-    font-size: 1.8em;
-    margin-bottom: 25px;
-    text-align: center;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  /* Post List */
-  .post-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
-    margin-top: 20px;
-  }
-  
-  .post-card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .post-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  }
-  
-  .post-card-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    background-color: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    font-style: italic;
-  }
-  
-  .post-card-content {
-    padding: 20px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .post-card-title {
-    font-size: 1.4em;
-    color: #34495e;
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-  
-  .post-card-author {
-    font-size: 0.9em;
-    color: #7f8c8d;
-    margin-bottom: 15px;
-  }
-  
-  .post-card-text {
-    font-size: 0.95em;
-    color: #666;
-    line-height: 1.6;
-    flex-grow: 1;
-    margin-bottom: 15px;
-  }
-  
-  .post-card-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85em;
-    color: #95a5a6;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
-    margin-top: auto;
-  }
-  
-  
-  /* Dashboard specifics */
-  .dashboard-content {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 40px auto;
-  }
-  
-  .dashboard-content h1 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .dashboard-content p {
-    font-size: 1.1em;
-    color: #555;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
-  .dashboard-features ul {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 30px;
-  }
-  
-  .dashboard-features li {
-    background-color: #ecf0f1;
-    border: 1px solid #dcdcdc;
-    padding: 15px 20px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    font-size: 1em;
-    color: #34495e;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .dashboard-features li::before {
-    content: '➡️';
-    font-size: 1.2em;
-  }
-  /* agricultural_super_app/frontend/src/App.css */
 
-/* Add these styles to the end of your existing App.css */
-
-.user-profile-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 20px auto;
-  }
-  
-  .profile-card {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 500px;
-  }
-  
-  .profile-picture-container {
-    margin-bottom: 20px;
-  }
-  
-  .profile-picture {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%; /* Makes the image round */
-    object-fit: cover; /* Ensures the image covers the area without distortion */
-    border: 4px solid #4CAF50; /* Green border */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .profile-picture-placeholder {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #777;
-    font-size: 0.9em;
-    margin: 0 auto 20px;
-    border: 1px dashed #bbb;
-  }
-  
-  .profile-edit-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-  }
-  
-  .profile-edit-section h3 {
-    color: #333;
-    margin-bottom: 15px;
-  }
-  
-  .profile-edit-section .input-field {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
-  }
-  
-  .profile-edit-section .primary-button {
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-  }
-  
-  .profile-sections {
-    width: 100%;
-    max-width: 500px;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    text-align: left;
-  }
-  
-  .profile-sections h3 {
-    color: #4CAF50;
-    margin-bottom: 15px;
-  }
-  
-  .profile-sections p {
-    margin-bottom: 10px;
-    color: #555;
-  }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #f4f7f6;
-    color: #333;
-  }
-  
-  code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-      monospace;
-  }
-  
-  .App {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .main-content, .content-area {
-    flex-grow: 1;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  /* Header/NavBar Styles */
-  .app-header {
-    background-color: #4CAF50; /* Green */
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .app-logo {
-    color: white;
-    text-decoration: none;
-    font-size: 1.8em;
-    font-weight: bold;
-  }
-  
-  .header-nav {
-    display: flex;
-    align-items: center;
-  }
-  
-  .nav-link {
-    color: white;
-    text-decoration: none;
-    margin-left: 20px;
-    font-size: 1.1em;
-    transition: color 0.3s ease;
-  }
-  
-  .nav-link:hover {
-    color: #e0e0e0;
-  }
-  
-  .welcome-message {
-    margin-left: 20px;
-    font-size: 1em;
-  }
-  
-  .header-button {
-    margin-left: 20px;
-  }
-  
-  /* General Button Styles */
-  .button {
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease;
-    border: none;
-  }
-  
-  .primary-button {
-    background-color: #4CAF50; /* Green */
-    color: white;
-  }
-  
-  .primary-button:hover {
-    background-color: #45a049;
-  }
-  
-  .secondary-button {
-    background-color: #f44336; /* Red */
-    color: white;
-  }
-  
-  .secondary-button:hover {
-    background-color: #da190b;
-  }
-  
-  .outline-button {
-    background-color: transparent;
-    color: #4CAF50;
-    border: 1px solid #4CAF50;
-  }
-  
-  .outline-button:hover {
-    background-color: #e6ffe6;
-  }
-  
-  /* Form Styles */
-  .form-container {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: 50px auto;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .input-field,
-  .textarea-field {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  
-  .textarea-field {
-    resize: vertical;
-    min-height: 80px;
-  }
-  
-  .submit-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #2196F3; /* Blue */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em;
-  }
-  
-  .submit-button:hover {
-    background-color: #0b7dda;
-  }
-  
-  .error-message {
-    color: #f44336; /* Red */
-    background-color: #ffebee;
-    border: 1px solid #f44336;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
-  .success-message {
-    color: #4CAF50; /* Green */
-    background-color: #e8f5e9;
-    border: 1px solid #4CAF50;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
-  /* Page Containers */
-  .page-container {
-    padding: 20px;
-    margin-top: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  /* Post Card Styles (if you have them) */
-  .posts-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  .post-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .post-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .post-card-content {
-    padding: 15px;
-  }
-  
-  .post-card h3 {
-    margin-top: 0;
-    color: #333;
-    font-size: 1.4em;
-  }
-  
-  .post-card p {
-    color: #666;
-    font-size: 0.95em;
-    line-height: 1.5;
-  }
-  
-  .post-card .post-meta {
-    font-size: 0.85em;
-    color: #888;
-    margin-top: 10px;
-  }
-  
-  .post-card .post-actions {
-    display: flex;
-    justify-content: flex-end;
-    padding: 10px 15px 15px;
-    border-top: 1px solid #eee;
-  }
-  
-  .post-card .post-actions .button {
-    margin-left: 10px;
-  }
-  
-  /* Community Card Styles */
-  .communities-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  .community-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 180px;
-  }
-  
-  .community-card h3 {
-    margin-top: 0;
-    color: #333;
-    font-size: 1.3em;
-  }
-  
-  .community-card p {
-    color: #666;
-    font-size: 0.9em;
-    flex-grow: 1; /* Allows description to take up space */
-  }
-  
-  .community-card .member-count {
-    font-size: 0.85em;
-    color: #888;
-    margin-top: 10px;
-  }
-  
-  .community-card .community-actions {
-    margin-top: 15px;
-    text-align: right;
-  }
-  
-  .community-card .button {
-    width: auto; /* Override general button width */
-  }
-  
-  /* Single Community Page */
-  .community-details-container {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-top: 20px;
-  }
-  
-  .community-details-container h2 {
-    color: #4CAF50;
-    margin-bottom: 10px;
-  }
-  
-  .community-details-container p {
-    line-height: 1.6;
-    color: #555;
-    margin-bottom: 10px;
-  }
-  
-  .community-details-container .button-group {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-  }
-  
-  .community-details-container .status-message {
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f0f8ff; /* Light blue */
-    color: #333;
-    border: 1px solid #add8e6;
-  }
-  
-  /* Single Post Page */
-  .single-post-container {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-top: 20px;
-  }
-  
-  .single-post-container h2 {
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .single-post-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  
-  .single-post-content {
-    line-height: 1.7;
-    color: #444;
-    margin-bottom: 20px;
-  }
-  
-  .single-post-meta {
-    font-size: 0.9em;
-    color: #777;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-  }
-  
-  .single-post-actions {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
-  }
-  
-  .comments-section {
-    margin-top: 30px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
-  }
-  
-  .comments-list {
-    margin-top: 20px;
-  }
-  
-  .comment-card {
-    background-color: #f9f9f9;
-    border: 1px solid #eee;
-    border-radius: 5px;
-    padding: 15px;
-    margin-bottom: 10px;
-  }
-  
-  .comment-author {
-    font-weight: bold;
-    color: #4CAF50;
-    margin-bottom: 5px;
-  }
-  
-  .comment-content {
-    color: #555;
-    margin-bottom: 5px;
-  }
-  
-  .comment-date {
-    font-size: 0.8em;
-    color: #888;
-  }
-  
-  .add-comment-form {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-  }
-  
-  .add-comment-form textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: vertical;
-    min-height: 80px;
-    margin-bottom: 10px;
-  }
-  
-  .add-comment-form button {
-    width: auto;
-    padding: 8px 15px;
-  }
-  
-  /* User Profile Page */
-  .user-profile-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 20px auto;
-  }
-  
-  .profile-card {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 500px;
-  }
-  
-  .profile-picture-container {
-    margin-bottom: 20px;
-  }
-  
-  .profile-picture {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #4CAF50;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .profile-picture-placeholder {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #777;
-    font-size: 0.9em;
-    margin: 0 auto 20px;
-    border: 1px dashed #bbb;
-  }
-  
-  .profile-edit-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-  }
-  
-  .profile-edit-section h3 {
-    color: #333;
-    margin-bottom: 15px;
-  }
-  
-  .profile-edit-section .input-field {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
-  }
-  
-  .profile-edit-section .primary-button {
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-  }
-  
-  .profile-sections {
-    width: 100%;
-    max-width: 500px;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    text-align: left;
-  }
-  
-  .profile-sections h3 {
-    color: #4CAF50;
-    margin-bottom: 15px;
-  }
-  
-  .profile-sections p {
-    margin-bottom: 10px;
-    color: #555;
-  }
-  
-  /* Messages on Profile Page */
-  .message {
-    margin-top: 15px;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 0.9em;
-    text-align: center;
-  }
-  
-  .message.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-  
-  .message.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-  }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #f4f7f6;
-    color: #333;
-  }
-  
-  code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-      monospace;
-  }
-  
-  .App {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .main-content, .content-area {
-    flex-grow: 1;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  /* Header/NavBar Styles */
-  .app-header {
-    background-color: #4CAF50; /* Green */
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .app-logo {
-    color: white;
-    text-decoration: none;
-    font-size: 1.8em;
-    font-weight: bold;
-  }
-  
-  .header-nav {
-    display: flex;
-    align-items: center;
-  }
-  
-  .nav-link {
-    color: white;
-    text-decoration: none;
-    margin-left: 20px;
-    font-size: 1.1em;
-    transition: color 0.3s ease;
-  }
-  
-  .nav-link:hover {
-    color: #e0e0e0;
-  }
-  
-  .welcome-message {
-    margin-left: 20px;
-    font-size: 1em;
-  }
-  
-  .header-button {
-    margin-left: 20px;
-  }
-  
-  /* General Button Styles */
-  .button {
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease;
-    border: none;
-  }
-  
-  .primary-button {
-    background-color: #4CAF50; /* Green */
-    color: white;
-  }
-  
-  .primary-button:hover {
-    background-color: #45a049;
-  }
-  
-  .secondary-button {
-    background-color: #f44336; /* Red */
-    color: white;
-  }
-  
-  .secondary-button:hover {
-    background-color: #da190b;
-  }
-  
-  .outline-button {
-    background-color: transparent;
-    color: #4CAF50;
-    border: 1px solid #4CAF50;
-  }
-  
-  .outline-button:hover {
-    background-color: #e6ffe6;
-  }
-  
-  /* Form Styles */
-  .form-container {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: 50px auto;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .input-field,
-  .textarea-field {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  
-  .textarea-field {
-    resize: vertical;
-    min-height: 80px;
-  }
-  
-  .submit-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #2196F3; /* Blue */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em;
-  }
-  
-  .submit-button:hover {
-    background-color: #0b7dda;
-  }
-  
-  .error-message {
-    color: #f44336; /* Red */
-    background-color: #ffebee;
-    border: 1px solid #f44336;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
-  .success-message {
-    color: #4CAF50; /* Green */
-    background-color: #e8f5e9;
-    border: 1px solid #4CAF50;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
-  /* Page Containers */
-  .page-container {
-    padding: 20px;
-    margin-top: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  /* Post Card Styles (if you have them) */
-  .posts-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  .post-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .post-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .post-card-content {
-    padding: 15px;
-  }
-  
-  .post-card h3 {
-    margin-top: 0;
-    color: #333;
-    font-size: 1.4em;
-  }
-  
-  .post-card p {
-    color: #666;
-    font-size: 0.95em;
-    line-height: 1.5;
-  }
-  
-  .post-card .post-meta {
-    font-size: 0.85em;
-    color: #888;
-    margin-top: 10px;
-  }
-  
-  .post-card .post-actions {
-    display: flex;
-    justify-content: flex-end;
-    padding: 10px 15px 15px;
-    border-top: 1px solid #eee;
-  }
-  
-  .post-card .post-actions .button {
-    margin-left: 10px;
-  }
-  
-  /* Community Card Styles */
-  .communities-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  .community-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 180px;
-  }
-  
-  .community-card h3 {
-    margin-top: 0;
-    color: #333;
-    font-size: 1.3em;
-  }
-  
-  .community-card p {
-    color: #666;
-    font-size: 0.9em;
-    flex-grow: 1; /* Allows description to take up space */
-  }
-  
-  .community-card .member-count {
-    font-size: 0.85em;
-    color: #888;
-    margin-top: 10px;
-  }
-  
-  .community-card .community-actions {
-    margin-top: 15px;
-    text-align: right;
-  }
-  
-  .community-card .button {
-    width: auto; /* Override general button width */
-  }
-  
-  /* Single Community Page */
-  .community-details-container {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-top: 20px;
-  }
-  
-  .community-details-container h2 {
-    color: #4CAF50;
-    margin-bottom: 10px;
-  }
-  
-  .community-details-container p {
-    line-height: 1.6;
-    color: #555;
-    margin-bottom: 10px;
-  }
-  
-  .community-details-container .button-group {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-  }
-  
-  .community-details-container .status-message {
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f0f8ff; /* Light blue */
-    color: #333;
-    border: 1px solid #add8e6;
-  }
-  
-  /* Single Post Page */
-  .single-post-container {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-top: 20px;
-  }
-  
-  .single-post-container h2 {
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .single-post-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  
-  .single-post-content {
-    line-height: 1.7;
-    color: #444;
-    margin-bottom: 20px;
-  }
-  
-  .single-post-meta {
-    font-size: 0.9em;
-    color: #777;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-  }
-  
-  .single-post-actions {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
-  }
-  
-  .comments-section {
-    margin-top: 30px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
-  }
-  
-  .comments-list {
-    margin-top: 20px;
-  }
-  
-  .comment-card {
-    background-color: #f9f9f9;
-    border: 1px solid #eee;
-    border-radius: 5px;
-    padding: 15px;
-    margin-bottom: 10px;
-  }
-  
-  .comment-author {
-    font-weight: bold;
-    color: #4CAF50;
-    margin-bottom: 5px;
-  }
-  
-  .comment-content {
-    color: #555;
-    margin-bottom: 5px;
-  }
-  
-  .comment-date {
-    font-size: 0.8em;
-    color: #888;
-  }
-  
-  .add-comment-form {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-  }
-  
-  .add-comment-form textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: vertical;
-    min-height: 80px;
-    margin-bottom: 10px;
-  }
-  
-  .add-comment-form button {
-    width: auto;
-    padding: 8px 15px;
-  }
-  
-  /* User Profile Page */
-  .user-profile-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 20px auto;
-  }
-  
-  .profile-card {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 500px;
-  }
-  
-  .profile-picture-container {
-    margin-bottom: 20px;
-  }
-  
-  .profile-picture {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #4CAF50;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .profile-picture-placeholder {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #777;
-    font-size: 0.9em;
-    margin: 0 auto 20px;
-    border: 1px dashed #bbb;
-  }
-  
-  .profile-edit-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-  }
-  
-  .profile-edit-section h3 {
-    color: #333;
-    margin-bottom: 15px;
-  }
-  
-  .profile-edit-section .input-field {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
-  }
-  
-  .profile-edit-section .primary-button {
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-  }
-  
-  .profile-sections {
-    width: 100%;
-    max-width: 500px;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    text-align: left;
-  }
-  
-  .profile-sections h3 {
-    color: #4CAF50;
-    margin-bottom: 15px;
-  }
-  
-  .profile-sections p {
-    margin-bottom: 10px;
-    color: #555;
-  }
-  
-  /* Messages on Profile Page */
-  .message {
-    margin-top: 15px;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 0.9em;
-    text-align: center;
-  }
-  
-  .message.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-  
-  .message.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-  }
-  /* General Body and HTML */
-html, body, #root {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
-  }
-  
-  /* App Container */
-  .App {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  /* Main Content Area */
-  .main-content {
-    flex-grow: 1;
-    padding: 20px;
-    display: flex; /* Ensures content centers */
-    justify-content: center; /* Centers content horizontally */
-    align-items: flex-start; /* Aligns content to the top */
-  }
-  
-  /* Page Containers */
-  .page-container {
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    margin: 20px auto;
-    max-width: 900px;
-    width: 100%;
-  }
-  
-  /* Forms and Inputs */
-  .form-container {
-    max-width: 500px;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .form-container h2 {
-    color: #2c3e50;
-    margin-bottom: 25px;
-    font-size: 2em;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-    text-align: left;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #555;
-    font-weight: bold;
-  }
-  
-  .input-field,
-  .textarea-field {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1.1em;
-    box-sizing: border-box; /* Ensures padding doesn't increase width */
-  }
-  
-  .textarea-field {
-    min-height: 100px;
-    resize: vertical;
-  }
-  
-  /* Buttons */
-  .button {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 10px;
-  }
-  
-  .primary-button {
-    background-color: #4CAF50; /* Green */
-    color: white;
-  }
-  
-  .primary-button:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-  }
-  
-  .secondary-button {
-    background-color: #008CBA; /* Blue */
-    color: white;
-  }
-  
-  .secondary-button:hover {
-    background-color: #007bb5;
-    transform: translateY(-2px);
-  }
-  
-  .danger-button {
-    background-color: #f44336; /* Red */
-    color: white;
-  }
-  
-  .danger-button:hover {
-    background-color: #da190b;
-    transform: translateY(-2px);
-  }
-  
-  .button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    transform: none;
-  }
-  
-  /* Messages */
-  .message {
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 15px;
-    font-size: 0.95em;
-    font-weight: bold;
-  }
-  
-  .success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-  
-  .error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-  }
-  
-  /* Navbar */
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #2c3e50; /* Dark blue-grey */
-    padding: 15px 30px;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  
   .navbar-brand {
-    font-size: 1.8em;
-    font-weight: bold;
-    color: white;
-    text-decoration: none;
-    letter-spacing: 0.5px;
+    margin-bottom: 0.8rem;
+    text-align: center;
   }
-  
+
   .nav-links {
-    display: flex;
-    align-items: center;
-  }
-  
-  .nav-link {
-    color: white;
-    text-decoration: none;
-    margin: 0 15px;
-    font-size: 1.1em;
-    transition: color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .nav-link:hover {
-    color: #4CAF50; /* Green */
-    transform: translateY(-2px);
-  }
-  
-  .navbar-buttons .button {
-    margin-left: 10px;
-  }
-  
-  .welcome-message {
-    margin-left: 20px;
-    font-size: 1.1em;
-    font-weight: normal;
-    color: #f0f0f0;
-  }
-  
-  /* HomePage Styles */
-  .homepage-container {
-    text-align: center;
-    padding: 50px 20px;
-    background-color: #e8f5e9; /* Light green background */
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 40px auto;
-    color: #2c3e50;
-  }
-  
-  .homepage-container h1 {
-    font-size: 3.5em;
-    color: #4CAF50;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-  }
-  
-  .homepage-container p {
-    font-size: 1.3em;
-    line-height: 1.6;
-    margin-bottom: 30px;
-    color: #555;
-  }
-  
-  .homepage-buttons .button {
-    margin: 0 15px;
-    font-size: 1.2em;
-    padding: 12px 30px;
-  }
-  
-  /* Dashboard Page */
-  .dashboard-page {
-    display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 20px auto;
-  }
-  
-  .dashboard-header {
     width: 100%;
-    text-align: center;
-    margin-bottom: 30px;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
   }
-  
-  .dashboard-header h1 {
-    font-size: 2.8em;
-    color: #2c3e50;
-  }
-  
-  .content-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    width: 100%;
-  }
-  
-  .card {
-    background-color: #ffffff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    text-align: center;
-    transition: transform 0.2s ease;
-  }
-  
-  .card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .card h2 {
-    color: #4CAF50;
-    margin-bottom: 15px;
-    font-size: 1.8em;
-  }
-  
-  .card p {
-    font-size: 1.1em;
-    color: #666;
-    margin-bottom: 20px;
-  }
-  
-  .dashboard-list {
-    list-style: none;
-    padding: 0;
-    text-align: left;
-    margin-top: 20px;
-  }
-  
-  .dashboard-list li {
-    margin-bottom: 10px;
-    font-size: 1.1em;
-    color: #444;
-  }
-  
-  .dashboard-list li strong {
-    color: #2c3e50;
-  }
-  
-  /* User Profile Page */
-  .user-profile-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 20px auto;
-  }
-  
-  .profile-card {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 500px;
-  }
-  
-  .profile-picture-container {
-    margin-bottom: 20px;
-  }
-  
-  .profile-picture {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #4CAF50;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .profile-picture-placeholder {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #777;
-    font-size: 0.9em;
-    margin: 0 auto 20px;
-    border: 1px dashed #bbb;
-  }
-  
-  .profile-edit-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-  }
-  
-  .profile-edit-section h3 {
-    color: #333;
-    margin-bottom: 15px;
-  }
-  
-  .profile-edit-section .input-field {
-    width: calc(100% - 20px); /* Adjust for padding to ensure it doesn't overflow */
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
-  }
-  
-  .profile-edit-section .primary-button {
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-  }
-  
-  .profile-sections {
-    width: 100%;
-    max-width: 800px;
-    margin-top: 30px;
-    display: flex;
-    justify-content: space-around;
-    gap: 20px;
-  }
-  
-  .profile-sections h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-    font-size: 1.6em;
-    text-align: center;
-  }
-  
-  .profile-sections .section-box {
-    background-color: #ffffff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    flex: 1;
-  }
-  
-  /* Community Page */
-  .community-header {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  
-  .community-header h1 {
-    font-size: 2.5em;
-    color: #2c3e50;
-    margin-bottom: 10px;
-  }
-  
-  .community-header p {
-    font-size: 1.1em;
-    color: #666;
-  }
-  
-  .community-details {
-    margin-bottom: 20px;
-    font-size: 1em;
-    color: #555;
-  }
-  
-  .community-posts-section,
-  .community-members-section {
-    margin-top: 40px;
-  }
-  
-  .community-posts-section h2,
-  .community-members-section h2 {
-    color: #4CAF50;
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 2em;
-  }
-  
-  /* Create Community Page */
-  .create-community-page {
-    padding: 20px;
-    max-width: 600px;
-    margin: 20px auto;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    text-align: center;
-  }
-  
-  .create-community-page h2 {
-    color: #2c3e50;
-    margin-bottom: 25px;
-  }
-  
-  /* Post Detail Page */
-  .post-detail-page {
-    max-width: 800px;
-    margin: 20px auto;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .post-content h1 {
-    font-size: 2.8em;
-    color: #2c3e50;
-    margin-bottom: 15px;
-  }
-  
-  .post-meta {
-    font-size: 0.9em;
-    color: #777;
-    margin-bottom: 25px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-  }
-  
-  .post-body {
-    font-size: 1.1em;
-    line-height: 1.8;
-    color: #444;
-    margin-bottom: 30px;
-  }
-  
-  .comments-section h2 {
-    font-size: 1.8em;
-    color: #4CAF50;
-    margin-bottom: 20px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
-  }
-  
-  .comment-list {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .comment-item {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #eee;
-  }
-  
-  .comment-author {
-    font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 5px;
-  }
-  
-  .comment-text {
-    font-size: 1em;
-    color: #333;
-    margin-bottom: 5px;
-  }
-  
-  .comment-date {
-    font-size: 0.8em;
-    color: #888;
-  }
-  
-  .add-comment-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-  }
-  
-  .add-comment-section h3 {
-    color: #333;
-    margin-bottom: 15px;
-  }
-  
-  .add-comment-section .textarea-field {
-    width: calc(100% - 20px);
-    margin-bottom: 15px;
-  }
-  
-  .add-comment-section .submit-button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    font-size: 1.1em;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .navbar {
-      flex-direction: column;
-      padding: 15px 10px;
-    }
-  
-    .nav-links {
-      margin-top: 15px;
-      flex-direction: column;
-      width: 100%;
-    }
-  
-    .nav-link {
-      margin: 10px 0;
-      width: 100%;
-      text-align: center;
-    }
-  
-    .navbar-buttons {
-      margin-top: 15px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .navbar-buttons .button {
-      margin: 5px 0;
-      width: 80%;
-    }
-  
-    .homepage-container,
-    .form-container,
-    .user-profile-page,
-    .post-detail-page,
-    .create-community-page,
-    .page-container {
-      padding: 15px;
-      margin: 15px;
-    }
-  
-    .homepage-container h1 {
-      font-size: 2.5em;
-    }
-  
-    .homepage-container p {
-      font-size: 1em;
-    }
-  
-    .homepage-buttons .button {
-      font-size: 1em;
-      padding: 10px 20px;
-      margin: 5px;
-    }
-  
-    .content-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .profile-sections {
-      flex-direction: column;
-    }
-  }
-  
-  /* Utility Classes */
-  .text-center {
-    text-align: center;
-  }
-  /* Add to App.css */
-.community-list-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  .community-list-item {
-    text-align: left; /* Override card's center text */
-  }
-  
-  .community-list-item a {
-    text-decoration: none;
-    color: inherit; /* Inherit color from parent */
-    display: block;
-  }
-  
-  .community-list-item a h3 {
-    color: #4CAF50; /* Green for community names */
-    margin-top: 0;
-    margin-bottom: 10px;
-  }
-  
-  .community-list-item a p {
-    color: #555;
-    font-size: 0.95em;
-    line-height: 1.4;
-  }
-  /* General Body and HTML */
-html, body, #root {
+
+  .nav-link, .welcome-message, .header-button {
     margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
-  }
-  
-  /* App Container */
-  .App {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  /* Main Content Area */
-  .main-content {
-    flex-grow: 1;
-    padding: 20px;
-    display: flex; /* Ensures content centers */
-    justify-content: center; /* Centers content horizontally */
-    align-items: flex-start; /* Aligns content to the top */
-  }
-  
-  /* Page Containers */
-  .page-container {
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    margin: 20px auto;
-    max-width: 900px;
-    width: 100%;
-  }
-  
-  /* Forms and Inputs */
-  .form-container {
-    max-width: 500px;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .form-container h2 {
-    color: #2c3e50;
-    margin-bottom: 25px;
-    font-size: 2em;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-    text-align: left;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #555;
-    font-weight: bold;
-  }
-  
-  .input-field,
-  .textarea-field {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1.1em;
-    box-sizing: border-box; /* Ensures padding doesn't increase width */
-  }
-  
-  .textarea-field {
-    min-height: 100px;
-    resize: vertical;
-  }
-  
-  /* Buttons */
-  .button {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 10px;
-  }
-  
-  .primary-button {
-    background-color: #4CAF50; /* Green */
-    color: white;
-  }
-  
-  .primary-button:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-  }
-  
-  .secondary-button {
-    background-color: #008CBA; /* Blue */
-    color: white;
-  }
-  
-  .secondary-button:hover {
-    background-color: #007bb5;
-    transform: translateY(-2px);
-  }
-  
-  .danger-button {
-    background-color: #f44336; /* Red */
-    color: white;
-  }
-  
-  .danger-button:hover {
-    background-color: #da190b;
-    transform: translateY(-2px);
-  }
-  
-  .button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    transform: none;
-  }
-  
-  /* Messages */
-  .message {
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 15px;
-    font-size: 0.95em;
-    font-weight: bold;
-  }
-  
-  .success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-  
-  .error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-  }
-  
-  /* Navbar */
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #2c3e50; /* Dark blue-grey */
-    padding: 15px 30px;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .navbar-brand {
-    font-size: 1.8em;
-    font-weight: bold;
-    color: white;
-    text-decoration: none;
-    letter-spacing: 0.5px;
-  }
-  
-  .nav-links {
-    display: flex;
-    align-items: center;
-  }
-  
-  .nav-link {
-    color: white;
-    text-decoration: none;
-    margin: 0 15px;
-    font-size: 1.1em;
-    transition: color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .nav-link:hover {
-    color: #4CAF50; /* Green */
-    transform: translateY(-2px);
-  }
-  
-  .navbar-buttons .button {
-    margin-left: 10px;
-  }
-  
-  .welcome-message {
-    margin-left: 20px;
-    font-size: 1.1em;
-    font-weight: normal;
-    color: #f0f0f0;
-  }
-  
-  /* HomePage Styles */
-  .homepage-container {
-    text-align: center;
-    padding: 50px 20px;
-    background-color: #e8f5e9; /* Light green background */
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 40px auto;
-    color: #2c3e50;
-  }
-  
-  .homepage-container h1 {
-    font-size: 3.5em;
-    color: #4CAF50;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-  }
-  
-  .homepage-container p {
-    font-size: 1.3em;
-    line-height: 1.6;
-    margin-bottom: 30px;
-    color: #555;
-  }
-  
-  .homepage-buttons .button {
-    margin: 0 15px;
-    font-size: 1.2em;
-    padding: 12px 30px;
-  }
-  
-  /* Dashboard Page */
-  .dashboard-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 20px auto;
-  }
-  
-  .dashboard-header {
     width: 100%;
     text-align: center;
-    margin-bottom: 30px;
   }
-  
-  .dashboard-header h1 {
-    font-size: 2.8em;
-    color: #2c3e50;
-  }
-  
-  .content-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
+
+  .navbar .search-form-navbar {
+    margin-left: 0;
     width: 100%;
+    margin-top: 0.8rem;
+    order: -1;
   }
-  
-  .card {
-    background-color: #ffffff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    text-align: center;
-    transition: transform 0.2s ease;
+
+  .welcome-message, .header-button {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
   }
-  
-  .card:hover {
-    transform: translateY(-5px);
+
+  .form-container, .page-container, .post-detail-page, .user-profile-page,
+  .dashboard-page, .homepage-container, .create-community-page {
+    padding: var(--spacing-medium);
+    margin: var(--spacing-medium) auto;
   }
-  
-  .card h2 {
-    color: #4CAF50;
-    margin-bottom: 15px;
-    font-size: 1.8em;
-  }
-  
-  .card p {
-    font-size: 1.1em;
-    color: #666;
-    margin-bottom: 20px;
-  }
-  
-  .dashboard-list {
-    list-style: none;
-    padding: 0;
-    text-align: left;
-    margin-top: 20px;
-  }
-  
-  .dashboard-list li {
-    margin-bottom: 10px;
-    font-size: 1.1em;
-    color: #444;
-  }
-  
-  .dashboard-list li strong {
-    color: #2c3e50;
-  }
-  
-  /* User Profile Page */
-  .user-profile-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 20px auto;
-  }
-  
-  .profile-card {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 500px;
-  }
-  
-  .profile-picture-container {
-    margin-bottom: 20px;
-  }
-  
+
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.7rem; }
+  p { font-size: 0.9rem; }
+
+  .post-card-title { font-size: 1.3rem; }
+  .post-card p { -webkit-line-clamp: 4; }
+
   .profile-picture {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #4CAF50;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    width: 120px;
+    height: 120px;
   }
-  
-  .profile-picture-placeholder {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    display: flex;
-    align-items: center;
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .navbar {
+    flex-wrap: wrap;
     justify-content: center;
-    color: #777;
-    font-size: 0.9em;
-    margin: 0 auto 20px;
-    border: 1px dashed #bbb;
   }
-  
-  .profile-edit-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
+
+  .navbar-brand {
+    flex-basis: 100%;
+    text-align: center;
+    margin-bottom: 0.8rem;
   }
-  
-  .profile-edit-section h3 {
-    color: #333;
-    margin-bottom: 15px;
+
+  .nav-links {
+    flex-grow: 1;
   }
-  
-  .profile-edit-section .input-field {
-    width: calc(100% - 20px); /* Adjust for padding to ensure it doesn't overflow */
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
+}
+
+/* --- Messaging Styles --- */
+
+.message-page {
+  display: flex;
+  flex-direction: column;
+  max-width: 1000px; /* Adjust as needed */
+  margin: var(--spacing-large) auto;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: var(--spacing-large);
+}
+
+.messages-layout {
+  display: flex;
+  flex-direction: column; /* Default for mobile */
+  gap: var(--spacing-large);
+  margin-top: var(--spacing-large);
+}
+
+@media (min-width: 768px) {
+  .messages-layout {
+    flex-direction: row; /* Side-by-side for larger screens */
+    height: 70vh; /* Give it a fixed height for scrolling chat */
   }
-  
-  .profile-edit-section .primary-button {
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
+}
+
+.conversation-list-panel {
+  flex: 0 0 250px; /* Fixed width for list on desktop */
+  background-color: var(--light-gray);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-medium);
+  box-shadow: var(--box-shadow);
+  overflow-y: auto; /* Enable scrolling for conversation list */
+}
+
+.conversation-list-panel h3 {
+  text-align: center;
+  margin-bottom: var(--spacing-medium);
+  color: var(--primary-color);
+}
+
+.conversation-list-ul {
+  list-style: none;
+  padding: 0;
+}
+
+.conversation-list-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-small);
+  margin-bottom: var(--spacing-extra-small);
+  background-color: white;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.conversation-list-item:hover {
+  background-color: var(--medium-gray);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.conversation-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: var(--spacing-medium);
+  border: 1px solid var(--border-color);
+}
+
+.conversation-name {
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.chat-window-panel {
+  flex-grow: 1;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Contains chat messages and input */
+}
+
+.chat-header {
+  padding: var(--spacing-medium);
+  background-color: var(--primary-color);
+  color: white;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  box-shadow: var(--box-shadow);
+}
+
+.chat-header h4 {
+  margin: 0;
+  color: white;
+}
+
+.message-list {
+  flex-grow: 1;
+  padding: var(--spacing-medium);
+  overflow-y: auto; /* Make message list scrollable */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-small);
+  background-color: var(--light-gray); /* Light background for chat area */
+}
+
+.message-item {
+  display: flex;
+  width: 100%;
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: 0.7rem 1rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: relative;
+  word-wrap: break-word; /* Ensure long words break */
+}
+
+.my-message {
+  justify-content: flex-end;
+}
+
+.my-message .message-bubble {
+  background-color: var(--primary-color);
+  color: white;
+  border-bottom-right-radius: 4px; /* Pointy corner for self-sent messages */
+}
+
+.other-message {
+  justify-content: flex-start;
+}
+
+.other-message .message-bubble {
+  background-color: #e0e0e0; /* Light gray for others' messages */
+  color: var(--text-color);
+  border-bottom-left-radius: 4px; /* Pointy corner for received messages */
+}
+
+.message-sender {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 0.2rem;
+  opacity: 0.8;
+}
+
+.my-message .message-sender {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.other-message .message-sender {
+  color: var(--dark-gray);
+}
+
+.message-text {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.message-timestamp {
+  display: block;
+  font-size: 0.7rem;
+  text-align: right;
+  margin-top: 0.3rem;
+  opacity: 0.7;
+}
+
+.message-input-form {
+  display: flex;
+  padding: var(--spacing-medium);
+  border-top: 1px solid var(--border-color);
+  background-color: white;
+}
+
+.message-textarea {
+  flex-grow: 1;
+  padding: var(--spacing-small);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-right: var(--spacing-medium);
+  resize: none; /* Disable manual resizing */
+  font-size: 1rem;
+}
+
+.message-textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.send-button {
+  padding: 0.5rem 1rem;
+  min-width: 80px;
+}
+
+.no-conversation-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  color: var(--dark-gray);
+  font-style: italic;
+  text-align: center;
+}
+
+/* Responsive adjustments for messaging layout */
+@media (max-width: 767.98px) {
+  .messages-layout {
+    flex-direction: column;
+    height: auto; /* Auto height on small screens */
   }
-  
-  .profile-sections {
+  .conversation-list-panel {
+    flex: none;
     width: 100%;
-    max-width: 800px;
-    margin-top: 30px;
-    display: flex;
-    justify-content: space-around;
-    gap: 20px;
+    max-height: 40vh; /* Limit height of conversation list on mobile */
   }
-  
-  .profile-sections h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-    font-size: 1.6em;
-    text-align: center;
-  }
-  
-  .profile-sections .section-box {
-    background-color: #ffffff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    flex: 1;
-  }
-  
-  /* Community Page */
-  .community-header {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  
-  .community-header h1 {
-    font-size: 2.5em;
-    color: #2c3e50;
-    margin-bottom: 10px;
-  }
-  
-  .community-header p {
-    font-size: 1.1em;
-    color: #666;
-  }
-  
-  .community-details {
-    margin-bottom: 20px;
-    font-size: 1em;
-    color: #555;
-  }
-  
-  .community-posts-section,
-  .community-members-section {
-    margin-top: 40px;
-  }
-  
-  .community-posts-section h2,
-  .community-members-section h2 {
-    color: #4CAF50;
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 2em;
-  }
-  
-  /* Create Community Page */
-  .create-community-page {
-    padding: 20px;
-    max-width: 600px;
-    margin: 20px auto;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    text-align: center;
-  }
-  
-  .create-community-page h2 {
-    color: #2c3e50;
-    margin-bottom: 25px;
-  }
-  
-  /* Post Detail Page */
-  .post-detail-page {
-    max-width: 800px;
-    margin: 20px auto;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .post-content h1 {
-    font-size: 2.8em;
-    color: #2c3e50;
-    margin-bottom: 15px;
-  }
-  
-  .post-meta {
-    font-size: 0.9em;
-    color: #777;
-    margin-bottom: 25px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-  }
-  
-  .post-body {
-    font-size: 1.1em;
-    line-height: 1.8;
-    color: #444;
-    margin-bottom: 30px;
-  }
-  
-  .comments-section h2 {
-    font-size: 1.8em;
-    color: #4CAF50;
-    margin-bottom: 20px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
-  }
-  
-  .comment-list {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .comment-item {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #eee;
-  }
-  
-  .comment-author {
-    font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 5px;
-  }
-  
-  .comment-text {
-    font-size: 1em;
-    color: #333;
-    margin-bottom: 5px;
-  }
-  
-  .comment-date {
-    font-size: 0.8em;
-    color: #888;
-  }
-  
-  .add-comment-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-  }
-  
-  .add-comment-section h3 {
-    color: #333;
-    margin-bottom: 15px;
-  }
-  
-  .add-comment-section .textarea-field {
-    width: calc(100% - 20px);
-    margin-bottom: 15px;
-  }
-  
-  .add-comment-section .submit-button {
-    display: block;
+  .chat-window-panel {
+    flex: none;
     width: 100%;
-    padding: 10px;
-    font-size: 1.1em;
+    height: 60vh; /* Give chat window a fixed height on mobile */
   }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .navbar {
-      flex-direction: column;
-      padding: 15px 10px;
-    }
-  
-    .nav-links {
-      margin-top: 15px;
-      flex-direction: column;
-      width: 100%;
-    }
-  
-    .nav-link {
-      margin: 10px 0;
-      width: 100%;
-      text-align: center;
-    }
-  
-    .navbar-buttons {
-      margin-top: 15px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .navbar-buttons .button {
-      margin: 5px 0;
-      width: 80%;
-    }
-  
-    .homepage-container,
-    .form-container,
-    .user-profile-page,
-    .post-detail-page,
-    .create-community-page,
-    .page-container {
-      padding: 15px;
-      margin: 15px;
-    }
-  
-    .homepage-container h1 {
-      font-size: 2.5em;
-    }
-  
-    .homepage-container p {
-      font-size: 1em;
-    }
-  
-    .homepage-buttons .button {
-      font-size: 1em;
-      padding: 10px 20px;
-      margin: 5px;
-    }
-  
-    .content-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .profile-sections {
-      flex-direction: column;
-    }
-  }
-  
-  /* Utility Classes */
-  .text-center {
-    text-align: center;
-  }
+}

@@ -1,140 +1,191 @@
+// src/pages/UserProfilePage.js
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useGetUserQuery, useUpdateUserMutation } from "../redux/api/apiSlice"; // Import necessary hooks from apiSlice
-import { setCredentials } from "../redux/auth/authSlice"; // For updating Redux state after profile update
+import { Link } from "react-router-dom";
+// Assuming you have these queries in your apiSlice
+import {
+  useGetUserQuery,
+  useUpdateUserMutation,
+  useGetUserPostsQuery, // NEW: For fetching user's posts
+  useGetUserJoinedCommunitiesQuery, // NEW: For fetching user's joined communities
+} from "../redux/api/apiSlice";
+import { setCredentials } from "../redux/auth/authSlice";
+import "../App.css";
+
+import defaultAvatar from "../assets/images/user-icon.svg";
 
 function UserProfilePage() {
   const dispatch = useDispatch();
   const { currentUser, token } = useSelector((state) => state.auth);
 
-  // useGetUserQuery will automatically refetch when 'User' tag is invalidated by updateUser
   const {
     data: userData,
     isLoading,
     isSuccess,
     isError,
     error,
-    // refetch, // We no longer need to explicitly destructure refetch if we're not calling it manually
-  } = useGetUserQuery(undefined, {
+  } = useGetUserQuery(currentUser?.id, {
+    skip: !currentUser?.id,
+    selectFromResult: ({ data, ...rest }) => ({
+      data: data && typeof data === "object" && data.id ? data : null,
+      ...rest,
+    }),
+  });
+
+  // NEW: Fetch user's posts
+  const {
+    data: userPosts,
+    isLoading: arePostsLoading,
+    isSuccess: arePostsSuccess,
+    isError: arePostsError,
+    error: postsError,
+  } = useGetUserPostsQuery(currentUser?.id, {
+    skip: !currentUser?.id,
+  });
+
+  // NEW: Fetch user's joined communities
+  const {
+    data: userCommunities,
+    isLoading: areCommunitiesLoading,
+    isSuccess: areCommunitiesSuccess,
+    isError: areCommunitiesError,
+    error: communitiesError,
+  } = useGetUserJoinedCommunitiesQuery(currentUser?.id, {
     skip: !currentUser?.id,
   });
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
-  const [profilePictureUrl, setProfilePictureUrl] = useState("");
+  const [profilePicturePreview, setProfilePicturePreview] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState("");
 
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
   useEffect(() => {
-    // This effect ensures the form fields are populated with current user data
-    // It runs when userData is successfully fetched or when currentUser changes
     if (isSuccess && userData) {
       setUsername(userData.username || "");
       setEmail(userData.email || "");
       setBio(userData.bio || "");
-      setProfilePictureUrl(userData.profile_picture_url || "");
-    } else if (currentUser) {
-      // Fallback to currentUser if userData not yet available or failed
+      setProfilePicturePreview(userData.profile_picture_url || defaultAvatar);
+    } else if (currentUser && currentUser.id) {
       setUsername(currentUser.username || "");
       setEmail(currentUser.email || "");
+      setBio(currentUser.bio || "");
+      setProfilePicturePreview(
+        currentUser.profile_picture_url || defaultAvatar
+      );
     }
-  }, [isSuccess, userData, currentUser]); // Dependencies ensure effect runs when these values change
+  }, [isSuccess, userData, currentUser]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+
+    if (file) {
+      setProfilePicturePreview(URL.createObjectURL(file));
+    } else {
+      setProfilePicturePreview(
+        userData?.profile_picture_url ||
+          currentUser?.profile_picture_url ||
+          defaultAvatar
+      );
+    }
+  };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear previous messages
+    setMessage("");
 
-    const updatedFields = {
-      username,
-      email,
-      bio,
-      profile_picture_url: profilePictureUrl,
-    };
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("email", email);
+    formData.append("bio", bio);
+
+    if (selectedFile) {
+      formData.append("profile_picture", selectedFile);
+    }
 
     try {
-      const updatedUserResponse = await updateUser(updatedFields).unwrap();
-      setMessage("Profile updated successfully!");
-      // Update the Redux auth state with the new user info from the backend response
-      // RTK Query will automatically refetch the profile data in the background due to invalidatesTags
-      dispatch(setCredentials({ token: token, user: updatedUserResponse }));
-      // Removed: refetch(); // This line is no longer needed as invalidatesTags handles it
+      const updatedUserResponse = await updateUser(formData).unwrap();
+
+      if (updatedUserResponse.user) {
+        dispatch(
+          setCredentials({ token: token, user: updatedUserResponse.user })
+        );
+        setMessage("Profile updated successfully!");
+        if (updatedUserResponse.user.profile_picture_url) {
+          setProfilePicturePreview(
+            updatedUserResponse.user.profile_picture_url
+          );
+        }
+        setSelectedFile(null);
+      } else {
+        setMessage(
+          updatedUserResponse.message ||
+            "No changes provided or nothing to update."
+        );
+      }
     } catch (err) {
-      console.error("Failed to update profile:", err);
       setMessage(
-        err.data?.message || // Message from backend if available
-          err.error?.message || // Fallback for RTK Query errors
-          "Failed to update profile. Please try again." // Generic fallback
+        err.data?.message ||
+          err.error?.message ||
+          "Failed to update profile. Please try again."
       );
+      console.error("Update profile error:", err);
     }
   };
 
   if (isLoading) {
     return (
-      <div className="page-container text-center">
+      <div className="page-container">
         <p className="loading-message">Loading profile...</p>
       </div>
     );
   }
 
-  if (isError) {
+  if (isError || !userData) {
     return (
-      <div className="page-container text-center">
-        <p className="error">
-          Error loading profile:{" "}
-          {error?.data?.message || "An unexpected error occurred."}
+      <div className="page-container">
+        <p className="error-message">
+          {error?.data?.message ||
+            "Error loading profile: An unexpected error occurred."}
         </p>
-        <p>Please ensure you are logged in.</p>
-      </div>
-    );
-  }
-
-  // Handle case where userData is still null after loading (e.g., not logged in, or initial skip)
-  if (!userData && !isLoading) {
-    return (
-      <div className="page-container text-center">
-        <p className="no-content-message">
-          No profile data available. You might need to log in.
-        </p>
-        <p>
-          <a href="/login" className="text-blue-500 hover:underline">
-            Go to Login
-          </a>
-        </p>
+        {!currentUser?.id && (
+          <>
+            <p>Please ensure you are logged in.</p>
+            <p>
+              <Link to="/login" className="nav-link">
+                Go to Login
+              </Link>
+            </p>
+          </>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="user-profile-page container mx-auto p-4">
-      <div className="profile-card bg-white p-6 rounded shadow-md mb-8">
-        <h1 className="text-2xl font-bold mb-4">
-          {userData.username}'s Profile
-        </h1>
-        <div className="profile-picture-container mb-4 text-center">
-          {profilePictureUrl ? (
-            <img
-              src={profilePictureUrl}
-              alt={`${userData.username}'s profile`}
-              className="profile-picture w-32 h-32 rounded-full object-cover mx-auto border-2 border-green-500"
-            />
-          ) : (
-            <div className="profile-picture-placeholder w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm mx-auto border-2 border-green-500">
-              No Image
-            </div>
-          )}
+    <div className="page-container user-profile-page">
+      <div className="profile-card card">
+        <h1 className="profile-heading">{userData.username}'s Profile</h1>
+        <div className="profile-picture-container">
+          <img
+            src={profilePicturePreview}
+            alt={`${userData.username}'s profile`}
+            className="profile-picture"
+          />
         </div>
-        <p className="mb-2">
+        <p>
           <strong>Email:</strong> {userData.email}
         </p>
-        {/* Only display bio paragraph if bio data exists */}
         {userData.bio && (
-          <p className="mb-2">
+          <p>
             <strong>Bio:</strong> {userData.bio}
           </p>
         )}
-        <p className="mb-2">
+        <p>
           <strong>Account Type:</strong>{" "}
           {userData.is_expert ? "Agricultural Expert" : "General User"}
         </p>
@@ -142,97 +193,82 @@ function UserProfilePage() {
           <strong>Member Since:</strong>{" "}
           {new Date(userData.created_at).toLocaleDateString()}
         </p>
+        {userData.followers_count !== undefined && (
+          <p>
+            <strong>Followers:</strong> {userData.followers_count}
+          </p>
+        )}
+        {userData.following_users_count !== undefined && (
+          <p>
+            <strong>Following Users:</strong> {userData.following_users_count}
+          </p>
+        )}
+        {userData.following_communities_count !== undefined && (
+          <p>
+            <strong>Following Communities:</strong>{" "}
+            {userData.following_communities_count}
+          </p>
+        )}
       </div>
-
-      <div className="profile-edit-section bg-white p-6 rounded shadow-md">
-        <h3 className="text-xl font-semibold mb-4">
-          Update Profile Information
-        </h3>
+      <div className="profile-edit-section form-container">
+        <h3 className="section-heading">Update Profile Information</h3>
         {message && (
           <div
-            className={`p-2 mb-4 rounded ${
-              message.includes("successful")
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+            className={`message ${
+              message.includes("successful") ? "success" : "error"
             }`}
           >
             {message}
           </div>
         )}
         <form onSubmit={handleUpdateProfile}>
-          <div className="mb-4">
-            <label
-              htmlFor="edit-username"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Username:
-            </label>
+          <div className="form-group">
+            <label htmlFor="edit-username">Username:</label>
             <input
               type="text"
               id="edit-username"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="input-field"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
-          <div className="mb-4">
-            <label
-              htmlFor="edit-email"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Email:
-            </label>
+          <div className="form-group">
+            <label htmlFor="edit-email">Email:</label>
             <input
               type="email"
               id="edit-email"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="input-field"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-          <div className="mb-4">
-            <label
-              htmlFor="edit-bio"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Bio:
-            </label>
+          <div className="form-group">
+            <label htmlFor="edit-bio">Bio:</label>
             <textarea
               id="edit-bio"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="textarea-field"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows="4"
             ></textarea>
           </div>
-          <div className="mb-6">
-            <label
-              htmlFor="edit-profile-picture"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Profile Picture URL:
+          <div className="form-group">
+            <label htmlFor="edit-profile-picture-upload">
+              Profile Picture:
             </label>
             <input
-              type="text"
-              id="edit-profile-picture"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={profilePictureUrl}
-              onChange={(e) => setProfilePictureUrl(e.target.value)}
-              placeholder="Enter URL for profile picture"
+              type="file"
+              id="edit-profile-picture-upload"
+              className="input-field"
+              accept="image/*"
+              onChange={handleFileChange}
             />
-            {profilePictureUrl && (
-              <img
-                src={profilePictureUrl}
-                alt="Preview"
-                className="mt-2 max-w-[100px] max-h-[100px] rounded object-cover"
-              />
-            )}
           </div>
           <button
             type="submit"
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="button primary-button"
             disabled={isUpdating}
           >
             {isUpdating ? "Updating..." : "Update Profile"}
@@ -240,14 +276,80 @@ function UserProfilePage() {
         </form>
       </div>
 
-      <div className="profile-sections mt-8">
-        <div className="section-box bg-white p-6 rounded shadow-md mb-4">
-          <h3 className="text-xl font-semibold mb-2">My Posts</h3>
-          <p>List of user's posts will go here.</p>
+      <div className="profile-sections">
+        <div className="section-box card">
+          <h3 className="section-heading">My Posts</h3>
+          {arePostsLoading && (
+            <p className="loading-message">Loading posts...</p>
+          )}
+          {arePostsError && (
+            <p className="message error">
+              Error loading posts:{" "}
+              {postsError?.data?.message || "Unknown error"}
+            </p>
+          )}
+          {arePostsSuccess && userPosts && userPosts.length > 0 ? (
+            <ul className="post-list">
+              {userPosts.map((post) => (
+                <li key={post.id} className="post-list-item">
+                  <Link to={`/posts/${post.id}`} className="post-title-link">
+                    {post.title}
+                  </Link>
+                  {post.content && (
+                    <p className="post-excerpt">
+                      {post.content.substring(0, 100)}...
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            !arePostsLoading &&
+            !arePostsError && (
+              <p className="no-content-message">No posts yet.</p>
+            )
+          )}
         </div>
-        <div className="section-box bg-white p-6 rounded shadow-md">
-          <h3 className="text-xl font-semibold mb-2">My Communities</h3>
-          <p>List of communities user has joined will go here.</p>
+
+        <div className="section-box card">
+          <h3 className="section-heading">Communities I've Joined</h3>
+          {areCommunitiesLoading && (
+            <p className="loading-message">Loading communities...</p>
+          )}
+          {areCommunitiesError && (
+            <p className="message error">
+              Error loading communities:{" "}
+              {communitiesError?.data?.message || "Unknown error"}
+            </p>
+          )}
+          {areCommunitiesSuccess &&
+          userCommunities &&
+          userCommunities.length > 0 ? (
+            <ul className="community-list">
+              {userCommunities.map((community) => (
+                <li key={community.id} className="community-list-item-profile">
+                  <Link
+                    to={`/communities/${community.id}`}
+                    className="community-name-link"
+                  >
+                    {community.name}
+                  </Link>
+                  {community.description && (
+                    <p className="community-description">
+                      {community.description.substring(0, 70)}...
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            !areCommunitiesLoading &&
+            !areCommunitiesError && (
+              <p className="no-content-message">
+                Not a member of any communities yet.
+              </p>
+            )
+          )}
         </div>
       </div>
     </div>

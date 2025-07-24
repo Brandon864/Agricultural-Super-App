@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+// src/pages/RegisterPage.js
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-// CORRECTED IMPORT: Changed useRegisterUserMutation to useRegisterMutation
-import { useRegisterMutation } from "../redux/api/apiSlice"; // <-- FIX IS HERE
-import { setCredentials } from "../redux/auth/authSlice"; // Adjust path if different
+import { useRegisterMutation } from "../redux/api/apiSlice";
+import { setCredentials } from "../redux/auth/authSlice";
 
 function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -16,23 +16,18 @@ function RegisterPage() {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  // CORRECTED HOOK: Changed useRegisterUserMutation to useRegisterMutation
-  const [registerUser, { isLoading }] = useRegisterMutation(); // <-- FIX IS HERE
-
+  const [registerUser, { isLoading }] = useRegisterMutation();
   const { currentUser } = useSelector((state) => state.auth);
-  if (currentUser) {
-    navigate("/dashboard");
-    return null;
-  }
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/dashboard");
+    }
+  }, [currentUser, navigate]);
 
-  const togglePasswordConfirmVisibility = () => {
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+  const togglePasswordConfirmVisibility = () =>
     setShowPasswordConfirm((prev) => !prev);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,7 +50,7 @@ function RegisterPage() {
           setCredentials({ token: response.access_token, user: response.user })
         );
         setMessage("Registration successful!");
-        navigate("/dashboard");
+        // The useEffect above will handle navigation once currentUser is set
       } else {
         setMessage(
           "Registration successful, but login failed. Please try logging in manually."

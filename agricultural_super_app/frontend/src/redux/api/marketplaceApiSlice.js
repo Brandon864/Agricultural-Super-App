@@ -1,5 +1,7 @@
-import { apiSlice } from "./apiSlice"; // Make sure this path is correct for your base API slice
+// src/redux/api/marketplaceApiSlice.js
+import { apiSlice } from "./apiSlice"; // Import the base API slice
 
+// Inject endpoints related to the marketplace into the main apiSlice.
 export const marketplaceApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Query to get all marketplace items
@@ -10,7 +12,8 @@ export const marketplaceApiSlice = apiSlice.injectEndpoints({
     // Query to get a single marketplace item by ID
     getMarketplaceItem: builder.query({
       query: (id) => `/marketplace/items/${id}`, // API endpoint for getting a single item
-      providesTags: (result, error, id) => [{ type: "MarketplaceItem", id }], // Tag for cache invalidation
+      // Provides a specific 'MarketplaceItem' tag with an ID for detailed caching.
+      providesTags: (result, error, id) => [{ type: "MarketplaceItem", id }],
     }),
     // Mutation to create a new marketplace item
     createMarketplaceItem: builder.mutation({
@@ -19,13 +22,16 @@ export const marketplaceApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: itemData, // The data for the new item
       }),
-      invalidatesTags: ["MarketplaceItem"], // Invalidate 'MarketplaceItem' tag to refetch the list after creation
+      // Invalidate 'MarketplaceItem' tag to refetch the list after creation,
+      // ensuring the UI reflects the new item.
+      invalidatesTags: ["MarketplaceItem"],
     }),
-    // You can add updateMarketplaceItem and deleteMarketplaceItem mutations here later
+    // You can add `updateMarketplaceItem` and `deleteMarketplaceItem` mutations here later
+    // as your application evolves.
   }),
 });
 
-// Export the auto-generated hooks
+// Export the auto-generated hooks for the injected marketplace endpoints.
 export const {
   useGetMarketplaceItemsQuery,
   useGetMarketplaceItemQuery,

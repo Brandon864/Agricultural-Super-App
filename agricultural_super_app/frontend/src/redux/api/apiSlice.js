@@ -1,3 +1,4 @@
+// src/redux/api/apiSlice.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const apiSlice = createApi({
@@ -5,14 +6,22 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:5000/api",
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.token; // Assuming your token is stored here
+      const token = getState().auth.token;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
       return headers;
     },
   }),
-  tagTypes: ["User", "Post", "Comment", "MarketplaceItem", "Community"],
+  tagTypes: [
+    "User",
+    "Post",
+    "Comment",
+    "MarketplaceItem",
+    "Community",
+    "Follow",
+    "Message",
+  ],
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -28,9 +37,17 @@ export const apiSlice = createApi({
         body: userData,
       }),
     }),
+    // Define logout mutation
+    logout: builder.mutation({
+      query: () => ({
+        url: "/logout",
+        method: "POST",
+      }),
+    }),
+
     getUser: builder.query({
-      query: () => "/profile",
-      providesTags: ["User"], // Correct: provides 'User' tag
+      query: (userId) => `/users/${userId}`,
+      providesTags: (result, error, userId) => [{ type: "User", id: userId }],
     }),
     updateUser: builder.mutation({
       query: (userData) => ({
@@ -38,7 +55,24 @@ export const apiSlice = createApi({
         method: "PUT",
         body: userData,
       }),
-      invalidatesTags: ["User"], // Correct: invalidates 'User' tag, triggering refetch of getUser
+      invalidatesTags: (result, error, userData) => [
+        { type: "User", id: result?.id || userData.id },
+      ],
+    }),
+    getUsers: builder.query({
+      query: () => "/users",
+      providesTags: ["User"],
+    }),
+
+    getUserPosts: builder.query({
+      query: (userId) => `/users/${userId}/posts`,
+      providesTags: (result, error, userId) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Post", id })),
+              { type: "Post", id: "LIST" },
+            ]
+          : [{ type: "Post", id: "LIST" }],
     }),
 
     getPosts: builder.query({
@@ -51,7 +85,13 @@ export const apiSlice = createApi({
         method: "POST",
         body: postData,
       }),
-      invalidatesTags: ["Post"],
+      invalidatesTags: (result, error, { community_id, user_id }) => [
+        "Post",
+        { type: "Community", id: community_id },
+        { type: "Post", id: "LIST" },
+        { type: "Post", id: `USER_POSTS_${user_id}` },
+        { type: "User", id: user_id },
+      ],
     }),
     getPostDetail: builder.query({
       query: (postId) => `/posts/${postId}`,
@@ -68,8 +108,8 @@ export const apiSlice = createApi({
     }),
     unlikePost: builder.mutation({
       query: ({ postId }) => ({
-        url: `/posts/${postId}/like`,
-        method: "DELETE",
+        url: `/posts/${postId}/unlike`,
+        method: "POST",
       }),
       invalidatesTags: (result, error, { postId }) => [
         { type: "Post", id: postId },
@@ -78,7 +118,7 @@ export const apiSlice = createApi({
 
     getCommentsForPost: builder.query({
       query: (postId) => `/posts/${postId}/comments`,
-      providesTags: (result, error, postId) =>
+      providesTags: (result) =>
         result
           ? [
               ...result.map(({ id }) => ({ type: "Comment", id })),
@@ -135,6 +175,17 @@ export const apiSlice = createApi({
       ],
     }),
 
+    getUserJoinedCommunities: builder.query({
+      query: (userId) => `/users/${userId}/joined_communities`,
+      providesTags: (result, error, userId) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Community", id })),
+              { type: "Community", id: "JOINED_LIST" },
+            ]
+          : [{ type: "Community", id: "JOINED_LIST" }],
+    }),
+
     getCommunities: builder.query({
       query: () => "/communities",
       providesTags: ["Community"],
@@ -161,6 +212,8 @@ export const apiSlice = createApi({
       invalidatesTags: (result, error, communityId) => [
         { type: "Community", id: communityId },
         "Community",
+        { type: "Community", id: "JOINED_LIST" },
+        { type: "User", id: result?.current_user_id },
       ],
     }),
     leaveCommunity: builder.mutation({
@@ -171,14 +224,145 @@ export const apiSlice = createApi({
       invalidatesTags: (result, error, communityId) => [
         { type: "Community", id: communityId },
         "Community",
+        { type: "Community", id: "JOINED_LIST" },
+        { type: "User", id: result?.current_user_id },
       ],
     }),
-    uploadImage: builder.mutation({
-      query: (formData) => ({
-        url: "/upload/image", // Corrected URL to match Flask backend '/api/upload/image'
+    getCommunityPosts: builder.query({
+      query: (communityId) => `/communities/${communityId}/posts`,
+      providesTags: (result, error, communityId) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Post", id })),
+              { type: "Community", id: communityId },
+            ]
+          : [{ type: "Community", id: communityId }],
+    }),
+
+    searchUsers: builder.query({
+      query: (query) => `/search/users?q=${query}`,
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: "User", id })), "UserSearch"]
+          : ["UserSearch"],
+    }),
+    searchCommunities: builder.query({
+      query: (query) => `/search/communities?q=${query}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Community", id })),
+              "CommunitySearch",
+            ]
+          : ["CommunitySearch"],
+    }),
+    searchPosts: builder.query({
+      query: (query) => `/search/posts?q=${query}`,
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: "Post", id })), "PostSearch"]
+          : ["PostSearch"],
+    }),
+
+    getFollowers: builder.query({
+      query: (userId) => `/users/${userId}/followers`,
+      providesTags: (result, error, userId) => [
+        { type: "Follow", id: `FOLLOWERS_OF_${userId}` },
+        ...result.map(({ id }) => ({ type: "User", id })),
+      ],
+    }),
+    getFollowing: builder.query({
+      query: (userId) => `/users/${userId}/following`,
+      providesTags: (result, error, userId) => [
+        { type: "Follow", id: `FOLLOWING_OF_${userId}` },
+        ...result.map(({ id }) => ({ type: "User", id })),
+      ],
+    }),
+
+    followUser: builder.mutation({
+      query: (userId) => ({
+        url: `/users/${userId}/follow`,
         method: "POST",
-        body: formData,
       }),
+      invalidatesTags: (result, error, userId) => [
+        { type: "User", id: userId },
+        { type: "User", id: result?.current_user_id },
+        { type: "Follow", id: `FOLLOWERS_OF_${userId}` },
+        { type: "Follow", id: `FOLLOWING_OF_${result?.current_user_id}` },
+      ],
+    }),
+    unfollowUser: builder.mutation({
+      query: (userId) => ({
+        url: `/users/${userId}/follow`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, userId) => [
+        { type: "User", id: userId },
+        { type: "User", id: result?.current_user_id },
+        { type: "Follow", id: `FOLLOWERS_OF_${userId}` },
+        { type: "Follow", id: `FOLLOWING_OF_${result?.current_user_id}` },
+      ],
+    }),
+    followCommunity: builder.mutation({
+      query: (communityId) => ({
+        url: `/communities/${communityId}/follow`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, communityId) => [
+        { type: "Community", id: communityId },
+        { type: "Community", id: "JOINED_LIST" },
+        { type: "User", id: result?.current_user_id },
+      ],
+    }),
+    unfollowCommunity: builder.mutation({
+      query: (communityId) => ({
+        url: `/communities/${communityId}/follow`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, communityId) => [
+        { type: "Community", id: communityId },
+        { type: "Community", id: "JOINED_LIST" },
+        { type: "User", id: result?.current_user_id },
+      ],
+    }),
+
+    sendMessage: builder.mutation({
+      query: (messageData) => ({
+        url: "/messages",
+        method: "POST",
+        body: messageData,
+      }),
+      invalidatesTags: (result, error, arg) => {
+        const tags = [{ type: "Message", id: "LIST" }];
+        if (arg.receiver_id) {
+          tags.push({ type: "Message", id: `DIRECT_${arg.receiver_id}` });
+          tags.push({ type: "Message", id: `DIRECT_${result.sender_id}` });
+        }
+        if (arg.community_id) {
+          tags.push({ type: "Message", id: `COMMUNITY_${arg.community_id}` });
+        }
+        return tags;
+      },
+    }),
+    getDirectMessages: builder.query({
+      query: (otherUserId) => `/messages/direct/${otherUserId}`,
+      providesTags: (result, error, otherUserId) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Message", id })),
+              { type: "Message", id: `DIRECT_${otherUserId}` },
+            ]
+          : [{ type: "Message", id: `DIRECT_${otherUserId}` }],
+    }),
+    getCommunityMessages: builder.query({
+      query: (communityId) => `/messages/community/${communityId}`,
+      providesTags: (result, error, communityId) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Message", id })),
+              { type: "Message", id: `COMMUNITY_${communityId}` },
+            ]
+          : [{ type: "Message", id: `COMMUNITY_${communityId}` }],
     }),
   }),
 });
@@ -186,8 +370,11 @@ export const apiSlice = createApi({
 export const {
   useLoginMutation,
   useRegisterMutation,
+  useLogoutMutation, // Added useLogoutMutation to exports
   useGetUserQuery,
+  useGetUsersQuery,
   useUpdateUserMutation,
+  useGetUserPostsQuery,
   useGetPostsQuery,
   useCreatePostMutation,
   useGetPostDetailQuery,
@@ -200,10 +387,23 @@ export const {
   useGetMarketplaceItemsQuery,
   useCreateMarketplaceItemMutation,
   useGetMarketplaceItemDetailQuery,
+  useGetUserJoinedCommunitiesQuery,
   useGetCommunitiesQuery,
   useGetCommunityDetailQuery,
   useCreateCommunityMutation,
   useJoinCommunityMutation,
   useLeaveCommunityMutation,
-  useUploadImageMutation,
+  useGetCommunityPostsQuery,
+  useSearchUsersQuery,
+  useSearchCommunitiesQuery,
+  useSearchPostsQuery,
+  useGetFollowersQuery,
+  useGetFollowingQuery,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
+  useFollowCommunityMutation,
+  useUnfollowCommunityMutation,
+  useSendMessageMutation,
+  useGetDirectMessagesQuery,
+  useGetCommunityMessagesQuery,
 } = apiSlice;

@@ -1,36 +1,41 @@
 // agricultural_super_app/frontend/src/pages/DashboardPage.js
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom"; // Hooks for navigation
+import { useSelector } from "react-redux"; // Hook to get data from Redux store (for current user)
 import {
-  useGetPostsQuery,
-  useGetCommunitiesQuery,
-} from "../redux/api/apiSlice";
+  useGetPostsQuery, // RTK Query hook to fetch all posts
+  useGetCommunitiesQuery, // RTK Query hook to fetch all communities
+} from "../redux/api/apiSlice"; // Make sure these are defined in your apiSlice
 
 function DashboardPage() {
+  // Hook to navigate to different routes
   const navigate = useNavigate();
+  // Get the current logged-in user from the Redux authentication state.
   const { currentUser } = useSelector((state) => state.auth);
 
-  // --- CORRECTED: RTK Query hooks must be called UNCONDITIONALLY at the top level ---
+  // --- IMPORTANT: RTK Query hooks must always be called unconditionally at the top level of the component. ---
+  // Fetch all posts using RTK Query
   const {
     data: posts,
     isLoading: postsLoading,
     error: postsError,
   } = useGetPostsQuery();
+  // Fetch all communities using RTK Query
   const {
     data: communities,
     isLoading: communitiesLoading,
     error: communitiesError,
   } = useGetCommunitiesQuery();
-  // --- END CORRECTED ---
+  // --- END OF HOOK DECLARATIONS ---
 
-  // Now, handle the redirect if not logged in. This check comes AFTER all hooks.
+  // Now, after all hooks are called, handle the redirect if the user is not logged in.
+  // This ensures hooks are always called in the same order, preventing React errors.
   if (!currentUser) {
-    navigate("/login");
-    return null; // Prevent rendering the rest of the component if redirecting
+    navigate("/login"); // Redirect to login page if user is not authenticated
+    return null; // Don't render the dashboard content if redirecting
   }
 
-  // Handle loading states for data *after* currentUser is confirmed
+  // Handle loading states for data *after* confirming the user is logged in.
   if (postsLoading || communitiesLoading) {
     return (
       <div className="page-container">
@@ -39,17 +44,18 @@ function DashboardPage() {
     );
   }
 
-  // Handle errors for data *after* currentUser is confirmed
+  // Handle errors for data *after* confirming the user is logged in.
   if (postsError || communitiesError) {
     return (
       <div className="page-container">
         <p className="error">
           Error loading dashboard data:{" "}
-          {postsError?.data?.message ||
-            communitiesError?.data?.message ||
-            "An unexpected error occurred."}
+          {postsError?.data?.message || // Display backend error message for posts
+            communitiesError?.data?.message || // Display backend error message for communities
+            "An unexpected error occurred."}{" "}
+          {/* Generic fallback error */}
         </p>
-        {/* Optional: Add a link to login or refresh if the error is auth-related */}
+        {/* Optional: Provide a login link if the error might be due to an expired token */}
         {postsError?.status === 401 || communitiesError?.status === 401 ? (
           <Link to="/login" className="button primary-button">
             Login
@@ -59,8 +65,9 @@ function DashboardPage() {
     );
   }
 
-  // Defensive check: Ensure communities and community.members are arrays before filtering
-  // Assuming community.members is an array of user IDs.
+  // Filter communities to show only those the current user is a member of.
+  // We defensively check if `communities` and `community.members` are arrays.
+  // Assumes `community.members` is an array of member IDs.
   const userCommunities =
     communities && Array.isArray(communities)
       ? communities.filter(
@@ -69,23 +76,30 @@ function DashboardPage() {
             Array.isArray(community.members) &&
             community.members.some((memberId) => memberId === currentUser.id)
         )
-      : [];
+      : []; // Default to an empty array if no communities or invalid data
 
   return (
     <div className="page-container dashboard-page">
+      {" "}
+      {/* Main container for the dashboard */}
       <div className="dashboard-header">
-        <h1>Welcome back, {currentUser.username}!</h1>
+        <h1>Welcome back, {currentUser.username}!</h1>{" "}
+        {/* Personalized welcome message */}
         <p>
           Your personalized hub for agricultural insights and community
           engagement.
         </p>
       </div>
-
       <div className="content-grid">
+        {" "}
+        {/* Grid layout for dashboard sections */}
         <div className="card">
+          {" "}
+          {/* Card for Latest Posts */}
           <h2>Latest Posts</h2>
           {posts && Array.isArray(posts) && posts.length > 0 ? (
             <ul className="dashboard-list">
+              {/* Display up to 5 latest posts */}
               {posts.slice(0, 5).map((post) => (
                 <li key={post.id}>
                   <Link to={`/posts/${post.id}`}>{post.title}</Link> - by{" "}
@@ -100,11 +114,13 @@ function DashboardPage() {
             View All Posts
           </Link>
         </div>
-
         <div className="card">
+          {" "}
+          {/* Card for My Communities */}
           <h2>My Communities</h2>
           {userCommunities.length > 0 ? (
             <ul className="dashboard-list">
+              {/* Display up to 5 communities the user has joined */}
               {userCommunities.slice(0, 5).map((community) => (
                 <li key={community.id}>
                   <Link to={`/communities/${community.id}`}>
@@ -120,8 +136,9 @@ function DashboardPage() {
             Explore Communities
           </Link>
         </div>
-
         <div className="card">
+          {" "}
+          {/* Card for Quick Links */}
           <h2>Quick Links</h2>
           <ul className="dashboard-list">
             <li>

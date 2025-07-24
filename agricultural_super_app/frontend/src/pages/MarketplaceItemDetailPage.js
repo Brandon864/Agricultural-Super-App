@@ -1,12 +1,11 @@
+// src/pages/MarketplaceItemDetailPage.js
 import React from "react";
 import { useParams, Link } from "react-router-dom";
-// CORRECT: Import from your main apiSlice
 import { useGetMarketplaceItemDetailQuery } from "../redux/api/apiSlice";
 
 function MarketplaceItemDetailPage() {
   const { id } = useParams();
 
-  // Use the correct hook: useGetMarketplaceItemDetailQuery
   const {
     data: item,
     isLoading,
@@ -51,19 +50,24 @@ function MarketplaceItemDetailPage() {
       <div className="card item-detail-card">
         {item.image_url && (
           <div className="item-detail-image">
-            <img src={item.image_url} alt={item.title} />
+            <img src={item.image_url} alt={item.name} />
           </div>
         )}
-        <h1>{item.title}</h1>
-        {/* Ensure item.price is not null/undefined before toFixed */}
+        <h1>{item.name}</h1>
+
         <p className="item-detail-price">
           <strong>Price:</strong> Ksh{" "}
           {item.price != null ? item.price.toFixed(2) : "N/A"}{" "}
           {item.unit_of_measure}
         </p>
-        <p className="item-detail-description">
-          <strong>Description:</strong> {item.description}
-        </p>
+        {/* --- UPDATE START: Wrap description with single-post-content and use dangerouslySetInnerHTML --- */}
+        {item.description && (
+          <div
+            className="item-detail-description single-post-content" // Added single-post-content class
+            dangerouslySetInnerHTML={{ __html: item.description }}
+          ></div>
+        )}
+        {/* --- UPDATE END --- */}
         <p className="item-detail-category">
           <strong>Category:</strong> {item.category}
         </p>
@@ -79,7 +83,6 @@ function MarketplaceItemDetailPage() {
         <p className="item-detail-date">
           Posted on: {new Date(item.created_at).toLocaleDateString()}
         </p>
-
         <Link to="/marketplace" className="button secondary-button">
           Back to Marketplace
         </Link>

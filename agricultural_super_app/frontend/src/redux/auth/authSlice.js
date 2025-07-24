@@ -1,5 +1,5 @@
+// src/redux/auth/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-// Removed: import { apiSlice } from "../api/apiSlice"; (not needed here anymore)
 
 const token = localStorage.getItem("token");
 const userString = localStorage.getItem("user");
@@ -32,9 +32,6 @@ const authSlice = createSlice({
     },
   },
 });
-
-// REMOVED: authApiSlice.injectEndpoints(...) block
-// REMOVED: export const { useRegisterMutation, useLoginMutation, ... } = authApiSlice;
 
 export const { setCredentials, logout } = authSlice.actions;
 

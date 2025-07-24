@@ -1,3 +1,4 @@
+// src/redux/store.js
 import { configureStore } from "@reduxjs/toolkit";
 import {
   persistStore,
@@ -18,6 +19,7 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
+  // Only the 'auth' slice is persisted to localStorage.
   whitelist: ["auth"],
 };
 
@@ -28,6 +30,8 @@ export const store = configureStore({
     [apiSlice.reducerPath]: apiSlice.reducer,
     auth: persistedAuthReducer,
   },
+  // Configures middleware, disabling serializable check for redux-persist actions
+  // and adding RTK Query's middleware for API handling.
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

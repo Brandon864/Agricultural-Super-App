@@ -1,19 +1,24 @@
-import axios from 'axios';
+// src/services/post.service.js
+import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_BASE_URL;
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
+
+// This service largely overlaps with RTK Query's postApiSlice.
+// It's recommended to migrate components to use RTK Query hooks (e.g., useGetPostsQuery).
 
 const fetchAllPosts = () => {
   return axios.get(`${API_URL}/posts`);
 };
 
 const createNewPost = (postData) => {
-  // postData should be FormData if it includes a file
-  return axios.post(`${API_URL}/posts`, postData, { headers: getAuthHeaders() });
+  return axios.post(`${API_URL}/posts`, postData, {
+    headers: getAuthHeaders(),
+  });
 };
 
 const getPostById = (postId) => {
@@ -21,11 +26,15 @@ const getPostById = (postId) => {
 };
 
 const updateExistingPost = (postId, postData) => {
-  return axios.put(`${API_URL}/posts/${postId}`, postData, { headers: getAuthHeaders() });
+  return axios.put(`${API_URL}/posts/${postId}`, postData, {
+    headers: getAuthHeaders(),
+  });
 };
 
 const deletePostById = (postId) => {
-  return axios.delete(`${API_URL}/posts/${postId}`, { headers: getAuthHeaders() });
+  return axios.delete(`${API_URL}/posts/${postId}`, {
+    headers: getAuthHeaders(),
+  });
 };
 
 const postService = {
@@ -34,7 +43,6 @@ const postService = {
   getPostById,
   updateExistingPost,
   deletePostById,
-  // Add like, comment services here later
 };
 
 export default postService;

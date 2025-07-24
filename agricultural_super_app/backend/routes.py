@@ -1,45 +1,53 @@
 from flask import request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, current_user # Import current_user
 from extensions import db
 from models import User, Post, Community, Follow, Comment, Like, Message
 from schemas import (
-    user_schema, users_schema,
-    post_schema, posts_schema,
-    community_schema, communities_schema,
+    UserSchema, users_schema, # Use UserSchema directly for context
+    PostSchema, posts_schema, # Use PostSchema directly for context
+    CommunitySchema, communities_schema, # Use CommunitySchema directly for context
     comment_schema, comments_schema,
     like_schema, likes_schema,
     message_schema, messages_schema,
     follow_schema, follows_schema
 )
-from auth import register_auth_routes # Import the function to register auth routes
+from auth import register_auth_routes
 import os
 from werkzeug.utils import secure_filename
 
-# Helper for allowed extensions (move to utils.py later)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
-    return '.' in filename and            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def register_routes(app):
-    # Register authentication routes
     register_auth_routes(app)
 
     # --- User Routes ---
     @app.route('/api/users', methods=['GET'])
+    @jwt_required(optional=True) # Allow access even if not logged in
     def get_users():
         users = User.query.all()
-        return jsonify(users_schema.dump(users)), 200
+        # Pass current_user to the schema context
+        users_schema_with_context = UserSchema(many=True, context={'current_user': current_user})
+        return jsonify(users_schema_with_context.dump(users)), 200
 
     @app.route('/api/users/<int:user_id>', methods=['GET'])
+    @jwt_required(optional=True) # Allow access even if not logged in
     def get_user(user_id):
         user = User.query.get_or_404(user_id)
-        return jsonify(user_schema.dump(user)), 200
+        # Pass current_user to the schema context
+        user_schema_with_context = UserSchema(context={'current_user': current_user})
+        return jsonify(user_schema_with_context.dump(user)), 200
 
     # --- Post Routes ---
     @app.route('/api/posts', methods=['GET'])
+    @jwt_required(optional=True) # Allow access even if not logged in
     def get_posts():
         posts = Post.query.order_by(Post.created_at.desc()).all()
-        return jsonify(posts_schema.dump(posts)), 200
+        # Pass current_user to the schema context (for author's is_following)
+        posts_schema_with_context = PostSchema(many=True, context={'current_user': current_user})
+        return jsonify(posts_schema_with_context.dump(posts)), 200
 
     @app.route('/api/posts', methods=['POST'])
     @jwt_required()
@@ -60,25 +68,30 @@ def register_routes(app):
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
             upload_folder = app.config['UPLOAD_FOLDER']
-            os.makedirs(upload_folder, exist_ok=True) # Ensure directory exists
+            os.makedirs(upload_folder, exist_ok=True)
             filepath = os.path.join(upload_folder, filename)
             image_file.save(filepath)
-            image_url = f"/static/uploads/{filename}" # URL to access image
+            image_url = f"/static/uploads/{filename}"
 
         new_post = Post(title=title, content=content, user_id=current_user_id, image_url=image_url)
         
         try:
             db.session.add(new_post)
             db.session.commit()
-            return jsonify({"message": "Post created successfully", "post": post_schema.dump(new_post)}), 201
+            # Pass current_user to the schema context for the response
+            post_schema_with_context = PostSchema(context={'current_user': current_user})
+            return jsonify({"message": "Post created successfully", "post": post_schema_with_context.dump(new_post)}), 201
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": "Error creating post", "error": str(e)}), 500
 
     @app.route('/api/posts/<int:post_id>', methods=['GET'])
+    @jwt_required(optional=True)
     def get_post(post_id):
         post = Post.query.get_or_404(post_id)
-        return jsonify(post_schema.dump(post)), 200
+        # Pass current_user to the schema context
+        post_schema_with_context = PostSchema(context={'current_user': current_user})
+        return jsonify(post_schema_with_context.dump(post)), 200
 
     @app.route('/api/posts/<int:post_id>', methods=['PUT'])
     @jwt_required()
@@ -89,14 +102,15 @@ def register_routes(app):
         if post.user_id != current_user_id:
             return jsonify({"message": "You are not authorized to update this post"}), 403
 
-        data = request.get_json() # Assuming JSON for update, but could be form-data for images
+        data = request.get_json()
         post.title = data.get('title', post.title)
         post.content = data.get('content', post.content)
-        # Image update logic might be more complex (delete old, upload new)
 
         try:
             db.session.commit()
-            return jsonify({"message": "Post updated successfully", "post": post_schema.dump(post)}), 200
+            # Pass current_user to the schema context
+            post_schema_with_context = PostSchema(context={'current_user': current_user})
+            return jsonify({"message": "Post updated successfully", "post": post_schema_with_context.dump(post)}), 200
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": "Error updating post", "error": str(e)}), 500
@@ -111,7 +125,6 @@ def register_routes(app):
             return jsonify({"message": "You are not authorized to delete this post"}), 403
         
         try:
-            # Optionally delete associated image file
             if post.image_url:
                 image_path = os.path.join(app.root_path, post.image_url.lstrip('/'))
                 if os.path.exists(image_path):
@@ -119,16 +132,19 @@ def register_routes(app):
             
             db.session.delete(post)
             db.session.commit()
-            return jsonify({"message": "Post deleted successfully"}), 204 # 204 No Content
+            return jsonify({"message": "Post deleted successfully"}), 204
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": "Error deleting post", "error": str(e)}), 500
 
     # --- Community Routes ---
     @app.route('/api/communities', methods=['GET'])
+    @jwt_required(optional=True) # Allow access even if not logged in
     def get_communities():
         communities = Community.query.all()
-        return jsonify(communities_schema.dump(communities)), 200
+        # Pass current_user to the schema context
+        communities_schema_with_context = CommunitySchema(many=True, context={'current_user': current_user})
+        return jsonify(communities_schema_with_context.dump(communities)), 200
 
     @app.route('/api/communities', methods=['POST'])
     @jwt_required()
@@ -148,94 +164,125 @@ def register_routes(app):
         try:
             db.session.add(new_community)
             db.session.commit()
-            return jsonify({"message": "Community created successfully", "community": community_schema.dump(new_community)}), 201
+            # Pass current_user to the schema context
+            community_schema_with_context = CommunitySchema(context={'current_user': current_user})
+            return jsonify({"message": "Community created successfully", "community": community_schema_with_context.dump(new_community)}), 201
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": "Error creating community", "error": str(e)}), 500
 
-    # --- Follow Routes ---
-    @app.route('/api/follow', methods=['POST'])
+    # --- NEW: User Follow Routes ---
+    @app.route('/api/users/<int:user_id>/follow', methods=['POST'])
     @jwt_required()
-    def follow_entity():
+    def follow_user(user_id):
         current_user_id = get_jwt_identity()
-        data = request.get_json()
-        followed_id = data.get('followed_id')
-        followed_type = data.get('followed_type') # 'user' or 'community'
-
-        if not followed_id or not followed_type:
-            return jsonify({"message": "Missing followed_id or followed_type"}), 400
-        
-        if followed_type not in ['user', 'community']:
-            return jsonify({"message": "Invalid followed_type"}), 400
-
-        if current_user_id == followed_id and followed_type == 'user':
+        if current_user_id == user_id:
             return jsonify({"message": "You cannot follow yourself"}), 400
 
-        # Check if already following
+        user_to_follow = User.query.get(user_id)
+        if not user_to_follow:
+            return jsonify({"message": "User not found"}), 404
+
         existing_follow = Follow.query.filter_by(
             follower_id=current_user_id,
-            followed_id=followed_id,
-            followed_type=followed_type
+            followed_id=user_id,
+            followed_type='user'
         ).first()
 
         if existing_follow:
-            return jsonify({"message": f"Already following this {followed_type}"}), 409
+            return jsonify({"message": "Already following this user"}), 409
 
-        # Verify the entity exists
-        if followed_type == 'user':
-            entity = User.query.get(followed_id)
-        elif followed_type == 'community':
-            entity = Community.query.get(followed_id)
-        
-        if not entity:
-            return jsonify({"message": f"{followed_type.capitalize()} not found"}), 404
-
-        new_follow = Follow(follower_id=current_user_id, followed_id=followed_id, followed_type=followed_type)
+        new_follow = Follow(follower_id=current_user_id, followed_id=user_id, followed_type='user')
         try:
             db.session.add(new_follow)
             db.session.commit()
-            return jsonify({"message": f"Successfully followed {followed_type}", "follow": follow_schema.dump(new_follow)}), 201
+            return jsonify({"message": "User followed successfully"}), 201
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": "Error following entity", "error": str(e)}), 500
+            return jsonify({"message": "Error following user", "error": str(e)}), 500
 
-    @app.route('/api/unfollow', methods=['POST'])
+    @app.route('/api/users/<int:user_id>/follow', methods=['DELETE'])
     @jwt_required()
-    def unfollow_entity():
+    def unfollow_user(user_id):
         current_user_id = get_jwt_identity()
-        data = request.get_json()
-        followed_id = data.get('followed_id')
-        followed_type = data.get('followed_type')
-
-        if not followed_id or not followed_type:
-            return jsonify({"message": "Missing followed_id or followed_type"}), 400
-
+        
         follow = Follow.query.filter_by(
             follower_id=current_user_id,
-            followed_id=followed_id,
-            followed_type=followed_type
+            followed_id=user_id,
+            followed_type='user'
         ).first()
 
         if not follow:
-            return jsonify({"message": f"Not following this {followed_type}"}), 404
+            return jsonify({"message": "You are not following this user"}), 404
         
         try:
             db.session.delete(follow)
             db.session.commit()
-            return jsonify({"message": f"Successfully unfollowed {followed_type}"}), 200
+            return jsonify({"message": "User unfollowed successfully"}), 200
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": "Error unfollowing entity", "error": str(e)}), 500
+            return jsonify({"message": "Error unfollowing user", "error": str(e)}), 500
 
+    # --- NEW: Community Follow Routes ---
+    @app.route('/api/communities/<int:community_id>/follow', methods=['POST'])
+    @jwt_required()
+    def follow_community(community_id):
+        current_user_id = get_jwt_identity()
+        
+        community_to_follow = Community.query.get(community_id)
+        if not community_to_follow:
+            return jsonify({"message": "Community not found"}), 404
+
+        existing_follow = Follow.query.filter_by(
+            follower_id=current_user_id,
+            followed_id=community_id,
+            followed_type='community'
+        ).first()
+
+        if existing_follow:
+            return jsonify({"message": "Already following this community"}), 409
+
+        new_follow = Follow(follower_id=current_user_id, followed_id=community_id, followed_type='community')
+        try:
+            db.session.add(new_follow)
+            db.session.commit()
+            return jsonify({"message": "Community followed successfully"}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": "Error following community", "error": str(e)}), 500
+
+    @app.route('/api/communities/<int:community_id>/follow', methods=['DELETE'])
+    @jwt_required()
+    def unfollow_community(community_id):
+        current_user_id = get_jwt_identity()
+        
+        follow = Follow.query.filter_by(
+            follower_id=current_user_id,
+            followed_id=community_id,
+            followed_type='community'
+        ).first()
+
+        if not follow:
+            return jsonify({"message": "You are not following this community"}), 404
+        
+        try:
+            db.session.delete(follow)
+            db.session.commit()
+            return jsonify({"message": "Community unfollowed successfully"}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": "Error unfollowing community", "error": str(e)}), 500
+
+
+    # --- Remaining Routes (no changes needed for now) ---
     @app.route('/api/users/<int:user_id>/following', methods=['GET'])
     def get_user_following(user_id):
         user = User.query.get_or_404(user_id)
+        # This route might need more sophisticated loading if you want actual User/Community objects
+        # For now, it returns raw Follow objects as per your original schema setup
         following = Follow.query.filter_by(follower_id=user.id).all()
-        # You'll likely need to load the actual User or Community objects here
-        # For simplicity, returning just the follow objects for now.
         return jsonify(follows_schema.dump(following)), 200
 
-    # --- Comments Routes ---
     @app.route('/api/posts/<int:post_id>/comments', methods=['GET'])
     def get_post_comments(post_id):
         post = Post.query.get_or_404(post_id)
@@ -262,7 +309,6 @@ def register_routes(app):
             db.session.rollback()
             return jsonify({"message": "Error adding comment", "error": str(e)}), 500
 
-    # --- Like Routes ---
     @app.route('/api/posts/<int:post_id>/like', methods=['POST'])
     @jwt_required()
     def like_post(post_id):
@@ -300,7 +346,6 @@ def register_routes(app):
             db.session.rollback()
             return jsonify({"message": "Error unliking post", "error": str(e)}), 500
     
-    # --- Message Routes ---
     @app.route('/api/messages', methods=['POST'])
     @jwt_required()
     def send_message():
@@ -355,4 +400,3 @@ def register_routes(app):
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": "Error marking message as read", "error": str(e)}), 500
-

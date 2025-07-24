@@ -1,42 +1,48 @@
+// src/components/CommentItem.js
 import React, { useState } from "react";
-import { useSelector } from "react-redux"; // CORRECT: Import useSelector
+import { useSelector } from "react-redux";
 import {
   useLikeCommentMutation,
   useUnlikeCommentMutation,
-  useAddCommentToPostMutation, // Using this for replies, as per apiSlice
-} from "../redux/api/apiSlice"; // CORRECT: Import from apiSlice
+  useAddCommentToPostMutation,
+} from "../redux/api/apiSlice";
 
 function CommentItem({
   comment,
-  postId, // Passed from parent (PostDetailPage)
-  commentsMap, // Still needed for recursive rendering
-  onReplySuccess, // Callback for parent to re-fetch/update
+  postId,
+  commentsMap,
+  onReplySuccess,
   level = 0,
 }) {
-  const { currentUser } = useSelector((state) => state.auth); // CORRECT: Get currentUser from Redux state
+  // Get current user from Redux state
+  const { currentUser } = useSelector((state) => state.auth);
+
+  // Local state for reply form visibility and text
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState("");
 
+  // RTK Query hooks
   const [likeComment] = useLikeCommentMutation();
   const [unlikeComment] = useUnlikeCommentMutation();
   const [addComment, { isLoading: isAddingReply }] =
-    useAddCommentToPostMutation(); // Use correct mutation
+    useAddCommentToPostMutation();
 
-  // Determine if current user has liked this comment
-  // Ensure comment.likes is an array and IDs are comparable (assuming currentUser.id is a number)
+  // Check if current user has liked this comment
   const hasLiked =
     currentUser &&
     comment.likes &&
     Array.isArray(comment.likes) &&
     comment.likes.includes(currentUser.id);
 
+  // Calculate likes count
   const likesCount = comment.likes ? comment.likes.length : 0;
 
-  // Find children comments for this comment
+  // Find direct replies to this comment
   const childrenComments = Object.values(commentsMap)
     .filter((c) => c.parent_comment_id === comment.id)
     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
+  // Handle like/unlike button click
   const handleLikeClick = async () => {
     if (!currentUser) {
       alert("Please log in to like a comment.");
@@ -58,8 +64,10 @@ function CommentItem({
     }
   };
 
+  // Handle reply submission
   const handleReplySubmit = async (e) => {
     e.preventDefault();
+
     if (!replyText.trim()) {
       alert("Reply cannot be empty.");
       return;
@@ -70,18 +78,19 @@ function CommentItem({
     }
 
     try {
-      // Ensure the 'commentData' structure matches what your backend expects for 'addCommentToPost'
+      // Corrected payload structure: commentData object is nested
       await addComment({
         postId: postId,
         commentData: {
-          content: replyText, // Using 'content' as per previous discussions for comment text
-          parent_comment_id: comment.id, // This comment's ID is the parent_comment_id for the reply
+          text: replyText,
+          parent_comment_id: comment.id,
         },
       }).unwrap();
-      setReplyText(""); // Clear reply input
-      setShowReplyForm(false); // Hide reply form
+
+      setReplyText("");
+      setShowReplyForm(false);
       if (onReplySuccess) {
-        onReplySuccess(); // Callback to potentially re-fetch or update parent state if needed
+        onReplySuccess();
       }
     } catch (err) {
       console.error("Failed to add reply:", err);
@@ -91,14 +100,14 @@ function CommentItem({
     }
   };
 
+  // Toggle reply form visibility
   const toggleReplyForm = () => {
     if (!currentUser) {
       alert("Please log in to reply to comments.");
       return;
     }
     if (!showReplyForm) {
-      // Pre-fill with author's username for tagging
-      const authorName = comment.author?.username || comment.author_username; // Use comment.author.username if available
+      const authorName = comment.author_username;
       setReplyText(`@${authorName} `);
     } else {
       setReplyText("");
@@ -106,7 +115,8 @@ function CommentItem({
     setShowReplyForm(!showReplyForm);
   };
 
-  const paddingLeft = `${level * 20}px`; // 20px per level of nesting
+  // Calculate left padding for nested comments
+  const paddingLeft = `${level * 20}px`;
 
   return (
     <div
@@ -114,11 +124,10 @@ function CommentItem({
       style={{ paddingLeft: paddingLeft }}
     >
       <p className="comment-author">
-        <strong>{comment.author?.username || comment.author_username}</strong>{" "}
-        on {new Date(comment.created_at).toLocaleDateString()}
+        <strong>{comment.author_username}</strong> on{" "}
+        {new Date(comment.created_at).toLocaleDateString()}
       </p>
-      <p className="comment-text">{comment.content || comment.text}</p>{" "}
-      {/* Use comment.content or comment.text */}
+      <p className="comment-text">{comment.text}</p>
       <div className="comment-actions">
         <button
           onClick={handleLikeClick}
@@ -140,11 +149,10 @@ function CommentItem({
           <textarea
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder={`Reply to ${
-              comment.author?.username || comment.author_username
-            }...`}
+            placeholder={`Reply to ${comment.author_username}...`}
             rows="2"
             required
+            className="input-field textarea-field"
           ></textarea>
           <button
             type="submit"
@@ -155,7 +163,6 @@ function CommentItem({
           </button>
         </form>
       )}
-      {/* Recursively render children comments */}
       {childrenComments.length > 0 && (
         <div className="comment-replies">
           {childrenComments.map((childComment) => (
@@ -163,9 +170,9 @@ function CommentItem({
               key={childComment.id}
               comment={childComment}
               postId={postId}
-              commentsMap={commentsMap} // Pass the full map for recursive finding
+              commentsMap={commentsMap}
               onReplySuccess={onReplySuccess}
-              level={level + 1} // Increment level for indentation
+              level={level + 1}
             />
           ))}
         </div>

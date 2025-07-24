@@ -1,15 +1,16 @@
+// src/pages/CreateMarketplaceItemPage.js (UPDATED)
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux"; // Correct: Import useSelector
-import { useCreateMarketplaceItemMutation } from "../redux/api/apiSlice"; // Correct: Import from your main apiSlice
+import { useNavigate } from "react-router-dom"; // Hook for navigation
+import { useSelector } from "react-redux"; // Hook to get data from Redux store (for current user)
+import { useCreateMarketplaceItemMutation } from "../redux/api/apiSlice"; // RTK Query hook for creating marketplace items
 
 function CreateMarketplaceItemPage() {
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state) => state.auth); // Get current user from Redux state
+  const { currentUser } = useSelector((state) => state.auth);
 
-  // --- CORRECTED: All hooks must be called unconditionally at the top level ---
-  // State for form fields
-  const [title, setTitle] = useState("");
+  // --- CHANGE 'title' to 'name' here ---
+  const [name, setName] = useState(""); // Renamed from title
+  // ------------------------------------
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
@@ -18,18 +19,14 @@ function CreateMarketplaceItemPage() {
   const [location, setLocation] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
-  // Use the mutation hook from apiSlice
   const [createMarketplaceItem, { isLoading, isError, error }] =
     useCreateMarketplaceItemMutation();
-  // --- END CORRECTED ---
 
-  // Now, handle the redirect if not logged in. This check comes AFTER all hooks.
   if (!currentUser) {
     navigate("/login");
-    return null; // Prevent component from rendering further if not authenticated
+    return null;
   }
 
-  // Define categories for the dropdown
   const categories = [
     "Produce",
     "Livestock",
@@ -43,8 +40,9 @@ function CreateMarketplaceItemPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // --- CHANGE 'title' to 'name' in client-side validation ---
     if (
-      !title ||
+      !name || // Renamed from title
       !description ||
       !category ||
       !price ||
@@ -55,6 +53,8 @@ function CreateMarketplaceItemPage() {
       alert("Please fill in all required fields.");
       return;
     }
+    // --------------------------------------------------------
+
     if (isNaN(price) || parseFloat(price) <= 0) {
       alert("Price must be a positive number.");
       return;
@@ -66,7 +66,9 @@ function CreateMarketplaceItemPage() {
 
     try {
       const itemData = {
-        title,
+        // --- CHANGE 'title' to 'name' here for the payload ---
+        name, // Renamed from title
+        // ----------------------------------------------------
         description,
         category,
         price: parseFloat(price),
@@ -92,19 +94,22 @@ function CreateMarketplaceItemPage() {
     <div className="page-container create-marketplace-item-page">
       <h1>Post a New Sale Listing</h1>
       <p>Fill out the form below to list your agricultural product for sale.</p>
-
       <form onSubmit={handleSubmit} className="form-container">
         <div className="form-group">
-          <label htmlFor="title">Product Title:</label>
+          {/* --- CHANGE htmlFor and onChange handler to 'name' --- */}
+          <label htmlFor="name">Product Name:</label>{" "}
+          {/* Changed label text to 'Product Name' for clarity */}
           <input
             type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            id="name" // Changed id from title to name
+            value={name}
+            onChange={(e) => setName(e.target.value)} // Changed setTitle to setName
             required
             placeholder="e.g., Organic Tomatoes, Used Tractor"
+            className="input-field"
           />
         </div>
+        {/* ------------------------------------------------------- */}
 
         <div className="form-group">
           <label htmlFor="description">Description:</label>
@@ -115,9 +120,9 @@ function CreateMarketplaceItemPage() {
             required
             rows="5"
             placeholder="Provide a detailed description of your product..."
+            className="input-field textarea-field"
           ></textarea>
         </div>
-
         <div className="form-group">
           <label htmlFor="category">Category:</label>
           <select
@@ -125,6 +130,7 @@ function CreateMarketplaceItemPage() {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
+            className="input-field select-field"
           >
             <option value="">Select a Category</option>
             {categories.map((cat) => (
@@ -134,7 +140,6 @@ function CreateMarketplaceItemPage() {
             ))}
           </select>
         </div>
-
         <div className="form-group">
           <label htmlFor="price">Price (Ksh):</label>
           <input
@@ -146,9 +151,9 @@ function CreateMarketplaceItemPage() {
             min="0.01"
             step="0.01"
             placeholder="e.g., 250.00"
+            className="input-field"
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="unitOfMeasure">Unit of Measure:</label>
           <input
@@ -158,9 +163,9 @@ function CreateMarketplaceItemPage() {
             onChange={(e) => setUnitOfMeasure(e.target.value)}
             required
             placeholder="e.g., per Kg, per Dozen, per Unit"
+            className="input-field"
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="quantityAvailable">Quantity Available:</label>
           <input
@@ -172,9 +177,9 @@ function CreateMarketplaceItemPage() {
             min="1"
             step="1"
             placeholder="e.g., 100"
+            className="input-field"
           />
         </div>
-
         <div className="form-group">
           <label htmlFor="location">Location:</label>
           <input
@@ -184,10 +189,9 @@ function CreateMarketplaceItemPage() {
             onChange={(e) => setLocation(e.target.value)}
             required
             placeholder="e.g., Nairobi, Nakuru, Kisumu"
+            className="input-field"
           />
         </div>
-
-        {/* Image URL field */}
         <div className="form-group">
           <label htmlFor="imageUrl">Image URL (Optional):</label>
           <input
@@ -196,6 +200,7 @@ function CreateMarketplaceItemPage() {
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             placeholder="Paste direct image link, e.g., https://example.com/image.jpg"
+            className="input-field"
           />
           {imageUrl && (
             <div className="image-preview">
@@ -212,7 +217,6 @@ function CreateMarketplaceItemPage() {
             </div>
           )}
         </div>
-
         <button
           type="submit"
           className="button primary-button"
@@ -220,7 +224,6 @@ function CreateMarketplaceItemPage() {
         >
           {isLoading ? "Posting..." : "Post Listing"}
         </button>
-
         {isError && (
           <p className="error-message">
             Error: {error?.data?.message || "Could not post listing."}

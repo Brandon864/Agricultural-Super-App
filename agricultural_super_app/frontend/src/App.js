@@ -1,3 +1,4 @@
+// src/App.js (UPDATED)
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/NavBar";
@@ -15,24 +16,27 @@ import PostsListPage from "./pages/PostsListPage";
 import MarketplacePage from "./pages/MarketplacePage";
 import CreateMarketplaceItemPage from "./pages/CreateMarketplaceItemPage";
 import MarketplaceItemDetailPage from "./pages/MarketplaceItemDetailPage";
-import UploadImagePage from "./pages/UploadImagePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PrivateRoute from "./components/PrivateRoute";
 import { Provider } from "react-redux";
 import { store, persistor } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 
+import SearchResultsPage from "./pages/SearchResultsPage";
+import UserDetailPage from "./pages/UserDetailPage";
+
+// CORRECTED IMPORT: Import ChatDashboard from the existing file
+import ChatDashboard from "./pages/ChatDashboard"; // Changed from MessagingCenterPage
+
 function App() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <Router>
-          {/* AuthProvider has been removed as Redux now handles authentication */}
           <div className="App">
             <Navbar />
             <main className="main-content">
               <Routes>
-                {/* Public Routes */}
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
@@ -45,7 +49,9 @@ function App() {
                 />
                 <Route path="/posts/:id" element={<PostDetailPage />} />
 
-                {/* Protected Routes (requires user to be logged in) */}
+                <Route path="/search-results" element={<SearchResultsPage />} />
+                <Route path="/users/:userId" element={<UserDetailPage />} />
+
                 <Route element={<PrivateRoute />}>
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/profile" element={<UserProfilePage />} />
@@ -59,10 +65,10 @@ function App() {
                     path="/marketplace/create"
                     element={<CreateMarketplaceItemPage />}
                   />
-                  <Route path="/upload-image" element={<UploadImagePage />} />
+                  {/* CORRECTED ROUTE: Point to ChatDashboard */}
+                  <Route path="/messaging" element={<ChatDashboard />} />
                 </Route>
 
-                {/* Catch-all for undefined routes */}
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </main>

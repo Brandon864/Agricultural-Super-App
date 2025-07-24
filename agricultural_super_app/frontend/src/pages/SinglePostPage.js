@@ -1,13 +1,14 @@
+// src/pages/SinglePostPage.js
 import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   useGetSinglePostQuery,
   useDeletePostMutation,
   useGetCommentsByPostIdQuery,
-  useAddCommentToPostMutation, // Corrected import name
+  useAddCommentToPostMutation,
 } from "../redux/api/apiSlice";
 import { useAuth } from "../context/AuthContext";
-import "../App.css"; // Ensure this is imported for styling
+import "../App.css";
 
 function SinglePostPage() {
   const { postId } = useParams();
@@ -29,12 +30,12 @@ function SinglePostPage() {
     isLoading: isCommentsLoading,
     isError: isCommentsError,
     error: commentsError,
-    refetch: refetchComments, // To refetch comments after adding a new one
+    refetch: refetchComments,
   } = useGetCommentsByPostIdQuery(postId);
 
   const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation();
   const [addComment, { isLoading: isAddingComment }] =
-    useAddCommentToPostMutation(); // Corrected usage name
+    useAddCommentToPostMutation();
 
   const handleDeletePost = async () => {
     if (window.confirm("Are you sure you want to delete this post?")) {
@@ -42,7 +43,7 @@ function SinglePostPage() {
         await deletePost(postId).unwrap();
         setDeleteStatus("Post deleted successfully!");
         setTimeout(() => {
-          navigate("/dashboard"); // Or navigate to home/posts list
+          navigate("/dashboard");
         }, 1500);
       } catch (err) {
         setDeleteStatus(
@@ -56,6 +57,7 @@ function SinglePostPage() {
   const handleAddComment = async (e) => {
     e.preventDefault();
     setAddCommentStatus("");
+
     if (!commentContent.trim()) {
       setAddCommentStatus("Comment cannot be empty.");
       return;
@@ -65,11 +67,15 @@ function SinglePostPage() {
       return;
     }
     try {
-      await addComment({ postId, content: commentContent }).unwrap();
+      // MODIFIED: Changed 'content' to 'text' to match backend expectation
+      await addComment({
+        postId,
+        commentData: { text: commentContent },
+      }).unwrap();
       setAddCommentStatus("Comment added successfully!");
-      setCommentContent(""); // Clear the input
-      refetchComments(); // Refetch comments to show the new one
-      setTimeout(() => setAddCommentStatus(""), 3000); // Clear message after 3 seconds
+      setCommentContent("");
+      refetchComments();
+      setTimeout(() => setAddCommentStatus(""), 3000);
     } catch (err) {
       setAddCommentStatus(
         `Failed to add comment: ${err?.data?.message || "Error"}`
@@ -122,7 +128,6 @@ function SinglePostPage() {
           </p>
         )}
       </div>
-
       {isAuthor && (
         <div className="single-post-actions">
           <Link to={`/posts/${post.id}/edit`} className="button primary-button">
@@ -146,7 +151,6 @@ function SinglePostPage() {
           {deleteStatus}
         </p>
       )}
-
       <div className="comments-section">
         <h3>Comments ({comments?.length || 0})</h3>
         {isCommentsLoading && <p>Loading comments...</p>}
@@ -175,7 +179,6 @@ function SinglePostPage() {
               </div>
             ))}
         </div>
-
         <div className="add-comment-form">
           <h4>Add a Comment</h4>
           <form onSubmit={handleAddComment}>
@@ -184,6 +187,7 @@ function SinglePostPage() {
               value={commentContent}
               onChange={(e) => setCommentContent(e.target.value)}
               disabled={isAddingComment || !currentUser}
+              className="input-field textarea-field"
             ></textarea>
             <button
               type="submit"

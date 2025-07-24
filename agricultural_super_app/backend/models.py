@@ -18,19 +18,32 @@ class User(db.Model):
     likes = db.relationship('Like', backref='liker', lazy=True)
     messages_sent = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy=True)
     messages_received = db.relationship('Message', foreign_keys='Message.receiver_id', backref='receiver', lazy=True)
-    
-    # Relationships for following experts/communities
-    following = db.relationship(
+
+    # --- UPDATED FOLLOW RELATIONSHIPS FOR USER ---
+    # Users this user is following
+    following_users_associations = db.relationship(
         'Follow',
         foreign_keys='Follow.follower_id',
-        backref='follower',
+        primaryjoin="and_(User.id == Follow.follower_id, Follow.followed_type == 'user')",
+        backref='follower_user',
         lazy='dynamic',
         cascade='all, delete-orphan'
     )
-    followers = db.relationship(
+    # Users who are following this user
+    followed_by_users_associations = db.relationship(
         'Follow',
         foreign_keys='Follow.followed_id',
-        backref='followed',
+        primaryjoin="and_(User.id == Follow.followed_id, Follow.followed_type == 'user')",
+        backref='followed_user',
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
+    # Communities this user is following
+    following_communities_associations = db.relationship(
+        'Follow',
+        foreign_keys='Follow.follower_id',
+        primaryjoin="and_(User.id == Follow.follower_id, Follow.followed_type == 'community')",
+        backref='follower_community_user',
         lazy='dynamic',
         cascade='all, delete-orphan'
     )
@@ -63,11 +76,13 @@ class Community(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationship for users following this community (through Follow table)
-    followers = db.relationship(
+    # --- UPDATED FOLLOW RELATIONSHIP FOR COMMUNITY ---
+    # Users who are following this community
+    followers_communities_associations = db.relationship(
         'Follow',
-        foreign_keys='Follow.followed_id', # If community can be 'followed_id'
-        backref='followed_community',
+        foreign_keys='Follow.followed_id',
+        primaryjoin="and_(Community.id == Follow.followed_id, Follow.followed_type == 'community')",
+        backref='followed_by_community', # Renamed to avoid clash with followed_community for user
         lazy='dynamic',
         cascade='all, delete-orphan'
     )
@@ -79,12 +94,10 @@ class Follow(db.Model):
     __tablename__ = 'follows'
     id = db.Column(db.Integer, primary_key=True)
     follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    # This can be either a user_id (for following experts) or a community_id (for following communities)
-    followed_id = db.Column(db.Integer, nullable=False) # Can be user.id or community.id
+    followed_id = db.Column(db.Integer, nullable=False)
     followed_type = db.Column(db.String(20), nullable=False) # 'user' or 'community'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Composite unique constraint to prevent duplicate follows
     __table_args__ = (db.UniqueConstraint('follower_id', 'followed_id', 'followed_type', name='_follower_followed_uc'),)
 
     def __repr__(self):
@@ -118,7 +131,7 @@ class Message(db.Model):
     __tablename__ = 'messages'
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # Can be user or community admin for group messages
+    receiver_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

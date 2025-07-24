@@ -1,31 +1,44 @@
-import React from "react";
+// src/pages/CommunityPage.js
+import React, { useState } from "react"; // Import useState for form inputs
 import { useParams, Link } from "react-router-dom";
-import { useSelector } from "react-redux"; // CORRECT: Added for auth state
+import { useSelector } from "react-redux";
 import {
   useGetCommunityDetailQuery,
   useJoinCommunityMutation,
   useLeaveCommunityMutation,
-} from "../redux/api/apiSlice"; // Assuming these are needed
+  useCreatePostMutation, // Import the createPost mutation hook
+} from "../redux/api/apiSlice";
 
 function CommunityPage() {
   const { id } = useParams();
-  const { currentUser } = useSelector((state) => state.auth); // Get current user from Redux
+  const { currentUser } = useSelector((state) => state.auth);
+
+  // State for new post form
+  const [newPostTitle, setNewPostTitle] = useState("");
+  const [newPostContent, setNewPostContent] = useState("");
+  const [showPostForm, setShowPostForm] = useState(false); // State to toggle form visibility
 
   const {
     data: community,
     isLoading,
     isError,
     error,
-    refetch, // Add refetch to update community data after join/leave
+    refetch,
   } = useGetCommunityDetailQuery(id);
 
   const [joinCommunity] = useJoinCommunityMutation();
   const [leaveCommunity] = useLeaveCommunityMutation();
+  const [createPost, { isLoading: isCreatingPost }] = useCreatePostMutation(); // Get the createPost function and its loading state
 
   const handleJoin = async () => {
     if (currentUser) {
-      await joinCommunity(id);
-      refetch(); // Refetch community details to update member list
+      try {
+        await joinCommunity(id).unwrap();
+        refetch();
+      } catch (err) {
+        console.error("Failed to join community:", err);
+        alert(err?.data?.message || "Failed to join community.");
+      }
     } else {
       alert("Please log in to join this community.");
     }
@@ -33,8 +46,44 @@ function CommunityPage() {
 
   const handleLeave = async () => {
     if (currentUser) {
-      await leaveCommunity(id);
-      refetch(); // Refetch community details to update member list
+      try {
+        await leaveCommunity(id).unwrap();
+        refetch();
+      } catch (err) {
+        console.error("Failed to leave community:", err);
+        alert(err?.data?.message || "Failed to leave community.");
+      }
+    }
+  };
+
+  const handleCreatePost = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+
+    if (!currentUser) {
+      alert("You must be logged in to create a post.");
+      return;
+    }
+
+    if (!newPostTitle.trim() || !newPostContent.trim()) {
+      alert("Post title and content cannot be empty.");
+      return;
+    }
+
+    try {
+      await createPost({
+        title: newPostTitle,
+        content: newPostContent,
+        community_id: parseInt(id), // Ensure it's an integer, as expected by backend
+      }).unwrap();
+
+      setNewPostTitle(""); // Clear form fields on success
+      setNewPostContent("");
+      setShowPostForm(false); // Hide the form after posting
+      // No need for explicit refetch here, invalidatesTags in apiSlice handles it
+      alert("Post created successfully!");
+    } catch (err) {
+      console.error("Failed to create post:", err);
+      alert(err?.data?.message || "Failed to create post.");
     }
   };
 
@@ -57,12 +106,11 @@ function CommunityPage() {
     return <div className="page-container">Community not found.</div>;
   }
 
-  // Check if current user is a member (assuming community.members is an array of user objects with 'id')
   const isMember =
     currentUser &&
     community.members &&
     Array.isArray(community.members) &&
-    community.members.some((member) => member.id === currentUser.id);
+    community.members.some((member) => member.id === currentUser.id); // Check if current user is a member object
 
   return (
     <div className="page-container">
@@ -72,10 +120,10 @@ function CommunityPage() {
         Members: {community.members ? community.members.length : 0}
       </p>
       <p className="text-gray-600 mb-4">
-        Created by: {community.creator?.username || "Unknown"}
+        Created by: {community.owner_username || "Unknown"}
       </p>{" "}
-      {/* Handle potential undefined creator */}
-      {currentUser && ( // Show join/leave button only if logged in
+      {/* Changed creator?.username to owner_username based on community object structure */}
+      {currentUser && (
         <div className="mb-4">
           {isMember ? (
             <button
@@ -94,18 +142,82 @@ function CommunityPage() {
           )}
         </div>
       )}
-      {/* Add a link to create a new post if user is a member */}
-      {currentUser && isMember && (
-        <Link
-          to={`/posts/create?communityId=${community.id}`}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-block mt-4"
-        >
-          Create New Post in this Community
-        </Link>
-      )}
+      {/* NEW: Section for creating a post */}
+      {currentUser &&
+        isMember && ( // Only show if logged in AND a member
+          <div className="mt-8 p-4 bg-white rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-4">
+              Create a New Post in {community.name}
+            </h2>
+            {!showPostForm ? (
+              <button
+                onClick={() => setShowPostForm(true)}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Start New Post
+              </button>
+            ) : (
+              <form onSubmit={handleCreatePost}>
+                <div className="mb-4">
+                  <label
+                    htmlFor="postTitle"
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                  >
+                    Title:
+                  </label>
+                  <input
+                    type="text"
+                    id="postTitle"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={newPostTitle}
+                    onChange={(e) => setNewPostTitle(e.target.value)}
+                    disabled={isCreatingPost}
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label
+                    htmlFor="postContent"
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                  >
+                    Content:
+                  </label>
+                  <textarea
+                    id="postContent"
+                    rows="5"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    value={newPostContent}
+                    onChange={(e) => setNewPostContent(e.target.value)}
+                    disabled={isCreatingPost}
+                    required
+                  ></textarea>
+                </div>
+                <div className="flex items-center justify-between">
+                  <button
+                    type="submit"
+                    className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    disabled={isCreatingPost}
+                  >
+                    {isCreatingPost ? "Posting..." : "Create Post"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPostForm(false)}
+                    className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    disabled={isCreatingPost}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+      {/* Existing Community Posts section */}
       <h2 className="text-2xl font-bold mt-8 mb-4">Community Posts</h2>
       {community.posts && community.posts.length > 0 ? (
         <ul>
+          {/* Ensure post.id is unique for keys */}
           {community.posts.map((post) => (
             <li
               key={post.id}

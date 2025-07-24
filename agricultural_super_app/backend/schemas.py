@@ -1,13 +1,51 @@
 from extensions import ma
 from models import User, Post, Community, Comment, Like, Message, Follow # Import all models
+from flask_jwt_extended import current_user # Import current_user for schema context
+
+# Define a base schema for common fields for followed entities
+class BaseFollowedSchema(ma.SQLAlchemyAutoSchema):
+    # This will be overridden by UserSchema and CommunitySchema Meta classes
+    pass
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
         include_relationships = True
-        # Exclude sensitive fields like password_hash when serializing
-        exclude = ('password_hash',)
+        exclude = ('password_hash',) # Exclude sensitive fields
+
+    # Add calculated fields for follower/following counts
+    followers_count = ma.Method("get_followers_count")
+    following_users_count = ma.Method("get_following_users_count")
+    following_communities_count = ma.Method("get_following_communities_count")
+
+    # Add a field to indicate if the current user is following this user
+    # This field relies on `current_user` being passed in the schema's context
+    is_following = ma.Method("get_is_following")
+
+    def get_followers_count(self, obj):
+        # Count only users who follow this user (followed_type = 'user')
+        return obj.followed_by_users_associations.count()
+
+    def get_following_users_count(self, obj):
+        # Count users this user is following (followed_type = 'user')
+        return obj.following_users_associations.count()
+
+    def get_following_communities_count(self, obj):
+        # Count communities this user is following (followed_type = 'community')
+        return obj.following_communities_associations.count()
+
+    def get_is_following(self, obj):
+        # `self.context` should contain {'current_user': current_user_object}
+        current_user_obj = self.context.get('current_user')
+        if not current_user_obj or current_user_obj.is_anonymous:
+            return False
+        # Check if the current user is following the 'obj' (the user being serialized)
+        return Follow.query.filter_by(
+            follower_id=current_user_obj.id,
+            followed_id=obj.id,
+            followed_type='user'
+        ).first() is not None
 
 class PostSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -15,8 +53,10 @@ class PostSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
-    author = ma.Nested(UserSchema, only=('id', 'username', 'profile_picture'))
-    # You might want to include nested comments/likes later, but keep it simple for now
+    # Pass the current_user context to the nested UserSchema for the author
+    author = ma.Nested(UserSchema, only=(
+        'id', 'username', 'profile_picture', 'followers_count', 'is_following'
+    ), context={'current_user': current_user}) # Pass context here
 
 class CommunitySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -25,6 +65,27 @@ class CommunitySchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
     admin = ma.Nested(UserSchema, only=('id', 'username')) # Assuming admin is a User
+
+    # Add calculated field for follower count
+    followers_count = ma.Method("get_followers_count")
+    # Add a field to indicate if the current user is following this community
+    is_followed = ma.Method("get_is_followed")
+
+    def get_followers_count(self, obj):
+        # Count users who follow this community (followed_type = 'community')
+        return obj.followers_communities_associations.count()
+
+    def get_is_followed(self, obj):
+        # `self.context` should contain {'current_user': current_user_object}
+        current_user_obj = self.context.get('current_user')
+        if not current_user_obj or current_user_obj.is_anonymous:
+            return False
+        # Check if the current user is following the 'obj' (the community being serialized)
+        return Follow.query.filter_by(
+            follower_id=current_user_obj.id,
+            followed_id=obj.id,
+            followed_type='community'
+        ).first() is not None
 
 class CommentSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -63,14 +124,20 @@ class FollowSchema(ma.SQLAlchemyAutoSchema):
 
 
 # Instantiate schemas for single and multiple objects
+# IMPORTANT: When using schemas that rely on current_user context, you MUST
+# pass the context when instantiating them within your routes.
+# The `user_schema` and `users_schema` below are global, and won't have context by default.
+# For API routes where you need `is_following`, you'll instantiate like:
+# user_schema = UserSchema(context={"current_user": current_user})
+# users_schema = UserSchema(many=True, context={"current_user": current_user})
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
-post_schema = PostSchema()
-posts_schema = PostSchema(many=True)
+post_schema = PostSchema() # Will need context for author's `is_following`
+posts_schema = PostSchema(many=True) # Will need context for author's `is_following`
 
-community_schema = CommunitySchema()
-communities_schema = CommunitySchema(many=True)
+community_schema = CommunitySchema() # Will need context for `is_followed`
+communities_schema = CommunitySchema(many=True) # Will need context for `is_followed`
 
 comment_schema = CommentSchema()
 comments_schema = CommentSchema(many=True)

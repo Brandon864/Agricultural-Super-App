@@ -1,18 +1,30 @@
+// src/components/ProtectedRoute.js
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux"; // CORRECT: Use useSelector from react-redux
+import { useAuth } from "../context/AuthContext"; // Import our custom AuthContext hook
 
-const PrivateRoute = () => {
-  // Get token and currentUser from Redux state
-  const { token, currentUser } = useSelector((state) => state.auth);
+const ProtectedRoute = () => {
+ 
+  const { isLoggedIn, loading } = useAuth();
 
-  // If no token or no currentUser, redirect to login
-  if (!token || !currentUser) {
-    return <Navigate to="/login" replace />;
+  // For debugging: log the current authentication status.
+  console.log(
+    "ProtectedRoute Render - Loading:",
+    loading,
+    "IsLoggedIn:",
+    isLoggedIn
+  );
+
+  // If the authentication status is still loading, display a loading message.
+  // This prevents the component from redirecting before the auth check is complete.
+  if (loading) {
+    return (
+      <div className="loading-message">Loading authentication...</div> 
+    );
   }
 
-  // If authenticated, render the child routes
-  return <Outlet />;
+  
+  return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
-export default PrivateRoute;
+export default ProtectedRoute;

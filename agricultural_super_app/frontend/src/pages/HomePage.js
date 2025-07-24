@@ -1,7 +1,9 @@
+// agricultural_super_app/frontend/src/pages/HomePage.js
 import React from "react";
 import { Link } from "react-router-dom";
-import { useGetPostsQuery } from "../redux/api/postsApiSlice"; // Import the RTK Query hook
-import PostCard from "../components/posts/PostCard"; // Import the PostCard component
+import { useGetPostsQuery } from "../redux/api/postsApiSlice";
+import PostCard from "../components/posts/PostCard";
+import "../App.css"; // Ensure App.css is imported for custom styles
 
 function HomePage() {
   const { data: posts, isLoading, isError, error } = useGetPostsQuery();
@@ -42,7 +44,6 @@ function HomePage() {
         sharing knowledge, and staying updated on the latest trends and
         resources.
       </p>
-      {/* Display login/register buttons only if there are no posts or initially */}
       {(!posts || posts.length === 0) && (
         <div className="homepage-buttons">
           <Link to="/register" className="button primary-button">
@@ -53,32 +54,28 @@ function HomePage() {
           </Link>
         </div>
       )}
-      <hr className="homepage-separator" /> {/* Visual separator */}
-      <h2>Latest Agricultural Posts</h2>
-      {posts && posts.length > 0 ? (
-        <div className="posts-grid">
-          {" "}
-          {/* Apply styling for a grid layout */}
-          {/* We'll display a subset of posts, e.g., the 5 most recent */}
-          {posts.slice(0, 5).map(
-            (
-              post // Show only the 5 most recent posts
-            ) => (
+      <hr className="homepage-separator" />
+      {/* NEW WRAPPER DIV for "Latest Agricultural Posts" section */}
+      <section className="latest-posts-section">
+        <h2>Latest Agricultural Posts</h2>
+        {posts && posts.length > 0 ? (
+          <div className="posts-grid">
+            {posts.slice(0, 5).map((post) => (
               <PostCard key={post.id} post={post} />
-            )
-          )}
-        </div>
-      ) : (
-        <p>No posts available yet. Be the first to share your insights!</p>
-      )}
-      {/* Link to view all posts, if you have more than 5 */}
-      {posts && posts.length > 5 && (
-        <div className="view-all-posts-section">
-          <Link to="/posts" className="button secondary-button">
-            View All Posts
-          </Link>
-        </div>
-      )}
+            ))}
+          </div>
+        ) : (
+          <p>No posts available yet. Be the first to share your insights!</p>
+        )}
+        {posts && posts.length > 5 && (
+          <div className="view-all-posts-section">
+            <Link to="/posts" className="button secondary-button">
+              View All Posts
+            </Link>
+          </div>
+        )}
+      </section>{" "}
+      {/* End of NEW WRAPPER DIV */}
     </div>
   );
 }
