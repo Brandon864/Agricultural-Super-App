@@ -1,37 +1,38 @@
 /* =========================================================
    Agricultural Super-App — Optimized Full-Screen CSS
-   Updated with Enhanced Marketplace Section
+   Updated with Enhanced Marketplace Section and WhatsApp-like Messaging
    ========================================================= */
 
-/* 1. CSS Variables (Enhanced) */
+/* 1. CSS Variables */
 :root {
-  --primary-color: #4CAF50; /* Green - Primary actions */
-  --secondary-color: #3498db; /* Blue - Links, active states */
-  --accent-color: #f39c12; /* Orange - Highlights */
-  --danger-color: #e74c3c; /* Red - Errors */
+  --primary-color: #4CAF50;
+  --secondary-color: #3498db;
+  --accent-color: #f39c12;
+  --danger-color: #e74c3c;
 
-  --background-page: #f0f2f5; /* Light gray-blue for pages */
-  --background-card: #ffffff; /* White for cards */
-  --background-light-gray: #f2f2f2; /* Subtle sections */
-  --background-chat-other-bubble: #e0e0e0; /* Others' chat bubbles */
-  --background-chat-my-bubble: #dcf8c6; /* My chat bubbles */
-  --background-chat-area: #e5ddd5; /* Chat area background */
+  --background-page: #f0f2f5;
+  --background-card: #ffffff;
+  --background-light-gray: #f2f2f2;
+  --background-chat-other-bubble: #e0e0e0;
+  --background-chat-my-bubble: #dcf8c6;
+  --background-chat-area: #e5ddd5;
 
-  --text-color-dark: #2c3e50; /* Headings */
-  --text-color-medium: #444; /* Body text */
-  --text-color-light: #777; /* Meta info */
-  --text-color-white: #ffffff; /* Dark background text */
+  --text-color-dark: #2c3e50;
+  --text-color-medium: #444;
+  --text-color-light: #777;
+  --text-color-white: #ffffff;
 
-  --border-color-light: #ddd; /* General borders */
-  --border-color-medium: #ccc; /* Slightly darker borders */
+  --border-color-light: #ddd;
+  --border-color-medium: #ccc;
 
-  --spacing-xxs: 0.25rem; /* 4px */
-  --spacing-xs: 0.5rem; /* 8px */
-  --spacing-sm: 0.75rem; /* 12px */
-  --spacing-md: 1rem; /* 16px */
-  --spacing-lg: 1.5rem; /* 24px */
-  --spacing-xl: 2rem; /* 32px */
+  --spacing-xxs: 0.25rem;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
 
+  --border-radius-xs: 3px;
   --border-radius-sm: 6px;
   --border-radius-md: 10px;
   --border-radius-lg: 14px;
@@ -41,7 +42,7 @@
   --box-shadow-hover: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* 2. Global Reset + Base Styles (Enhanced) */
+/* 2. Global Reset + Base Styles */
 *,
 *::before,
 *::after {
@@ -62,50 +63,74 @@ body,
   background-color: var(--background-page);
   color: var(--text-color-medium);
   line-height: 1.6;
+  background-image: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1400&q=80');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
+  /* Ensure full viewport coverage */
+  width: 100vw;
+  min-height: 100vh; /* Use min-height to allow content to extend if needed */
+  margin: 0;
+  padding: 0;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-/* 3. App Container (Adjusted) */
+/* 3. App Container */
 .App {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
+  /* Ensure full viewport coverage */
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
-/* 4. Main Content Area (Adjusted) */
+/* 4. Main Content Area */
 .main-content,
 .content-area {
   flex-grow: 1;
   padding: var(--spacing-md) var(--spacing-sm);
-  max-width: 100%;
-  margin: 0 auto;
-  width: 100%;
+  /* REMOVED MAX-WIDTH and MARGIN AUTO to allow full width */
+  max-width: 100vw; /* Ensure it respects viewport width */
+  margin: 0; /* No external margins */
+  width: 100%; /* Take full width available */
   display: flex;
   justify-content: center;
   overflow-x: hidden;
+  /* Ensure it fills available space */
+  flex-basis: 100%;
+  padding-left: 0; /* Remove padding that might cause gaps */
+  padding-right: 0; /* Remove padding that might cause gaps */
 }
 
-/* 5. Page Containers (Adjusted) */
-.page-container {
+/* 5. Page Containers - These typically reside within main-content,
+   they should have their own max-width for content readability,
+   but not prevent the main-content from stretching */
+.page-container,
+.form-container,
+.dashboard-page,
+.user-profile-page {
   padding: var(--spacing-md);
   background-color: var(--background-card);
   border-radius: var(--border-radius-md);
   box-shadow: var(--box-shadow-medium);
-  margin: var(--spacing-md) auto;
-  width: 95%;
-  max-width: none;
+  margin: var(--spacing-md) auto; /* Keep auto margin for horizontal centering, but ensure max-width */
+  width: 95%; /* Keep width at 95% for inner content */
+  max-width: 1200px; /* Still limit content width for readability */
   overflow: hidden;
 }
 
 .homepage-container,
-.search-results-page,
-.message-page {
-  max-width: 100vw;
+.search-results-page {
+  max-width: 100vw; /* Allow these specific pages to be full width */
   margin: 0;
   padding: 0;
   background-color: var(--background-page);
@@ -118,7 +143,7 @@ code {
 }
 
 .inner-page-content-wrapper {
-  max-width: 100%;
+  max-width: 1200px;
   margin: var(--spacing-md) auto;
   padding: var(--spacing-md);
   background-color: var(--background-card);
@@ -131,7 +156,7 @@ code {
   overflow-x: hidden;
 }
 
-/* 6. Typography (Adjusted) */
+/* 6. Typography */
 h1 {
   font-size: 2.2rem;
   color: var(--text-color-dark);
@@ -162,7 +187,7 @@ p {
   margin-bottom: var(--spacing-sm);
 }
 
-/* 7. Links (Unchanged) */
+/* 7. Links */
 a {
   color: var(--secondary-color);
   text-decoration: none;
@@ -174,15 +199,17 @@ a:hover {
   color: #2980b9;
 }
 
-/* 8. Images (Adjusted) */
+/* 8. Images */
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* 9. Buttons (Adjusted) */
-.button {
+/* 9. Buttons */
+.button,
+.send-button,
+.marketplace-button {
   padding: 0.8em 1.4em;
   border: none;
   border-radius: var(--border-radius-sm);
@@ -239,7 +266,9 @@ img {
   box-shadow: var(--box-shadow-light);
 }
 
-.button:disabled {
+.button:disabled,
+.send-button:disabled,
+.marketplace-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
   transform: none;
@@ -247,21 +276,17 @@ img {
   opacity: 0.7;
 }
 
-/* 10. Forms (Adjusted) */
+/* 10. Forms */
 .form-container {
-  max-width: 90%;
-  margin: var(--spacing-lg) auto;
-  padding: var(--spacing-md);
-  background-color: var(--background-card);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--box-shadow-medium);
   text-align: center;
-  overflow: hidden;
 }
 
 .form-group {
   margin-bottom: var(--spacing-md);
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .form-group label {
@@ -295,7 +320,7 @@ img {
   resize: vertical;
 }
 
-/* 11. Navbar (Adjusted) */
+/* 11. Navbar */
 .navbar,
 .app-header,
 .main-nav {
@@ -305,12 +330,18 @@ img {
   background-color: #2c3e50;
   padding: var(--spacing-sm) var(--spacing-md);
   color: var(--text-color-white);
-  box-shadow: var(--box-shadow-medium);
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.4);
   width: 100%;
   position: sticky;
   top: 0;
   z-index: 1000;
-  overflow: hidden;
+  overflow: hidden; /* Ensure content stays within bounds */
+}
+
+.logo {
+  width: 80px;
+  height: auto;
+  margin-right: var(--spacing-md);
 }
 
 .navbar-brand,
@@ -319,6 +350,17 @@ img {
   font-weight: 700;
   color: var(--text-color-white);
   text-decoration: none;
+  white-space: nowrap; /* Prevent breaking logo text */
+}
+
+.nav-link-agricultural-super-app {
+  color: indigo;
+  font-weight: bold;
+  font-size: 25px;
+  margin-right: var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .nav-links,
@@ -326,7 +368,12 @@ img {
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  color: var(--text-color-white);
+  font-weight: 600;
+  font-size: 1rem;
+  flex-grow: 1; /* Allows it to take up available space */
+  justify-content: flex-end; /* Pushes links to the right */
+  gap: var(--spacing-sm); /* Add a general gap for all nav items */
 }
 
 .nav-link,
@@ -337,6 +384,7 @@ img {
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--border-radius-sm);
   transition: background-color 0.3s ease, transform 0.2s ease;
+  white-space: nowrap; /* Prevent links from wrapping */
 }
 
 .nav-link:hover,
@@ -355,25 +403,27 @@ img {
   display: flex;
   align-items: center;
   flex-grow: 1;
-  max-width: 250px;
-  margin-left: var(--spacing-sm);
+  max-width: 300px;
+  margin-left: var(--spacing-lg);
+  margin-right: var(--spacing-md);
+  order: 2; /* Puts search after logo and before nav links for flexibility */
 }
 
 .navbar .search-input-navbar {
-  padding: 0.4rem 0.8rem;
+  padding: 0.6rem 1rem;
   border: 2px solid var(--border-color-medium);
-  border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+  border-radius: var(--border-radius-sm);
   outline: none;
-  font-size: 0.9rem;
+  font-size: 1rem;
   flex-grow: 1;
 }
 
 .navbar .search-button-navbar {
   background: var(--primary-color);
   color: var(--text-color-white);
-  border: 2px solid var(--primary-color);
-  padding: 0.4rem 0.8rem;
-  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -382,7 +432,77 @@ img {
   background: #45a049;
 }
 
-/* 12. Post Card (Adjusted) */
+/* **FORCE PROFILE DASHBOARD AND LOGOUT TO BE ALWAYS VISIBLE** */
+/* These rules are designed to aggressively override any hiding behavior,
+   especially from JavaScript manipulating 'display' or 'visibility'. */
+.navbar-profile-link,
+.navbar-logout-button {
+  color: var(--text-color-white);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap; /* Prevent wrapping */
+  /* Critical overrides for visibility */
+  display: inline-block !important; /* Forces visibility, overrides display: none */
+  opacity: 1 !important; /* Ensures it's not transparent */
+  visibility: visible !important; /* Ensures it's not hidden by visibility property */
+}
+
+.navbar-profile-link {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.navbar-profile-link:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.navbar-logout-button {
+  background-color: var(--danger-color);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.navbar-logout-button:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+}
+
+/* **Hypothetical dropdown container that might be hiding the links.**
+   If "ProfileDashboard" and "Logout" are nested inside a div that gets hidden,
+   this will force that parent to be visible. Adjust the class name
+   (`.profile-menu-hidden` or `.dropdown-content`) if it's different in your HTML. */
+.profile-menu-hidden,
+.dropdown-content,
+.user-profile-menu-container { /* Add any other potential hiding parent class names here */
+    display: flex !important; /* Ensure the container is always visible */
+    flex-direction: row; /* Layout its children in a row */
+    align-items: center;
+    gap: var(--spacing-sm); /* Maintain spacing between children */
+    position: static !important; /* Ensure it's not positioned off-screen */
+    opacity: 1 !important; /* Ensure it's not transparent */
+    visibility: visible !important; /* Ensure it's not hidden by visibility property */
+    overflow: visible !important; /* Allow children to overflow if necessary */
+}
+
+/* **To hide the "Brandon" text if it's no longer desired as a clickable element**
+   and the Profile/Logout links are now independent. Adjust class name if needed. */
+.profile-name-toggle, /* Common class for a clickable name */
+.profile-name-display, /* Another possible class for the displayed name */
+.user-profile-name-link /* If "Brandon" itself is a link */
+{
+    /* If you want to completely remove "Brandon" from the navbar and just have the links */
+    display: none !important;
+    /* If you want "Brandon" to exist but not be a click target for a dropdown: */
+    /* pointer-events: none;
+    cursor: default; */
+}
+
+
+/* 12. Post Card */
 .post-card {
   background-color: var(--background-card);
   border: 1px solid var(--border-color-light);
@@ -391,7 +511,7 @@ img {
   box-shadow: var(--box-shadow-light);
   display: flex;
   flex-direction: column;
-  height: auto;
+  min-height: 380px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
 }
@@ -465,7 +585,7 @@ img {
   margin-top: auto;
 }
 
-/* 13. Community Card (Adjusted for Fit) */
+/* 13. Community Card */
 .community-card {
   background-color: var(--background-card);
   border-radius: var(--border-radius-md);
@@ -473,7 +593,7 @@ img {
   padding: var(--spacing-sm);
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: 280px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
 }
@@ -611,19 +731,12 @@ img {
   margin-top: var(--spacing-xs);
 }
 
-/* 14. Dashboard (Adjusted) */
+/* 14. Dashboard */
 .dashboard-page,
 .dashboard-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--spacing-md);
-  max-width: 95%;
-  margin: var(--spacing-md) auto;
-  background-color: var(--background-card);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--box-shadow-medium);
-  overflow: hidden;
 }
 
 .content-grid {
@@ -683,18 +796,44 @@ img {
   color: #8A2BE2;
 }
 
-/* 15. User Profile Page (Adjusted) */
+.dashboard-profile-link-card {
+  background-color: var(--background-card);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-medium);
+  text-align: center;
+  margin-top: var(--spacing-lg);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+  text-decoration: none;
+  color: var(--text-color-dark);
+}
+
+.dashboard-profile-link-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.dashboard-profile-link-card h3 {
+  font-size: 1.6rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--primary-color);
+}
+
+.dashboard-profile-link-card p {
+  font-size: 0.95rem;
+  color: var(--text-color-medium);
+}
+
+
+/* 15. User Profile Page */
 .user-profile-page {
+  background-color: var(--background-light-gray);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--spacing-md);
-  background-color: var(--background-light-gray);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--box-shadow-light);
-  max-width: 95%;
-  margin: var(--spacing-md) auto;
-  overflow: hidden;
 }
 
 .profile-card {
@@ -780,12 +919,33 @@ img {
   overflow: hidden;
 }
 
-/* 16. Marketplace (Enhanced for Presentability) */
+.profile-logout-button {
+  margin-top: var(--spacing-lg);
+  width: 80%;
+  max-width: 250px;
+  padding: var(--spacing-md);
+  font-size: 1.1rem;
+  background-color: var(--danger-color);
+  color: var(--text-color-white);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: var(--box-shadow-medium);
+}
+
+.profile-logout-button:hover {
+  background-color: #c0392b;
+  transform: translateY(-3px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+
+/* 16. Marketplace */
 .marketplace-page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-md);
   background-color: var(--background-page);
   min-height: calc(100vh - 60px);
   overflow-x: hidden;
@@ -798,6 +958,8 @@ img {
   width: 100%;
   max-width: 1200px;
   margin-top: var(--spacing-lg);
+  margin-left: auto;
+  margin-right: auto;
   overflow-x: hidden;
 }
 
@@ -893,7 +1055,7 @@ img {
   border-radius: var(--border-radius-sm);
 }
 
-/* 17. Messaging (Adjusted) */
+/* 17. Messaging */
 .message-page {
   display: flex;
   flex-direction: column;
@@ -989,10 +1151,11 @@ img {
   padding: var(--spacing-sm) var(--spacing-md);
   background-color: var(--secondary-color);
   color: var(--text-color-white);
-  border-radius: 0;
   text-align: center;
   font-size: 1.1rem;
   font-weight: 600;
+  box-shadow: var(--box-shadow-light);
+  flex-shrink: 0;
 }
 
 .message-list {
@@ -1006,7 +1169,6 @@ img {
   background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
   background-size: 150px;
   background-repeat: repeat;
-  height: 100%;
   overflow-x: hidden;
 }
 
@@ -1016,11 +1178,12 @@ img {
 }
 
 .message-bubble {
-  max-width: 65%;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-lg);
+  max-width: 75%;
+  padding: var(--spacing-xs) var(--spacing-md);
   box-shadow: var(--box-shadow-light);
   word-wrap: break-word;
+  font-size: 0.95rem;
+  position: relative;
 }
 
 .my-message {
@@ -1029,8 +1192,8 @@ img {
 
 .my-message .message-bubble {
   background-color: var(--background-chat-my-bubble);
-  color: var(--text-color-chat-dark);
-  border-bottom-right-radius: var(--border-radius-sm);
+  color: var(--text-color-dark);
+  border-radius: var(--border-radius-sm) var(--border-radius-sm) var(--border-radius-xs) var(--border-radius-sm);
 }
 
 .other-message {
@@ -1039,64 +1202,68 @@ img {
 
 .other-message .message-bubble {
   background-color: var(--background-chat-other-bubble);
-  color: var(--text-color-chat-dark);
-  border-bottom-left-radius: var(--border-radius-sm);
+  color: var(--text-color-dark);
+  border-radius: var(--border-radius-sm) var(--border-radius-sm) var(--border-radius-sm) var(--border-radius-xs);
 }
 
 .message-sender {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   margin-bottom: var(--spacing-xxs);
-  color: var(--text-color-chat-dark);
-  opacity: 0.9;
-}
-
-.my-message .message-sender {
-  color: var(--text-color-white);
+  color: var(--primary-color);
+  opacity: 1;
+  display: block;
 }
 
 .message-text {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  color: inherit;
 }
 
 .message-timestamp {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   text-align: right;
   margin-top: var(--spacing-xxs);
   color: var(--text-color-light);
   opacity: 0.8;
+  display: block;
 }
 
 .message-input-form {
   display: flex;
+  align-items: flex-end;
   padding: var(--spacing-sm);
   border-top: 1px solid var(--border-color-light);
   background-color: var(--background-card);
-  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .message-textarea {
   flex-grow: 1;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: 2px solid var(--border-color-medium);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-lg);
   resize: none;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+  margin-right: var(--spacing-sm);
 }
 
 .message-textarea:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
 .send-button {
-  padding: var(--spacing-xxs) var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   min-width: 70px;
   background-color: var(--primary-color);
   color: var(--text-color-white);
-  border-radius: var(--border-radius-md);
-  transition: background-color 0.2s;
+  border-radius: var(--border-radius-lg);
+  font-weight: 600;
 }
 
 .send-button:hover {
@@ -1108,23 +1275,41 @@ img {
   .navbar {
     flex-direction: column;
     padding: var(--spacing-sm);
+    align-items: flex-start; /* Align items to the start for stacking */
+    height: auto; /* Allow height to adjust */
   }
 
-  .navbar-brand {
+  .navbar-brand, .nav-link-agricultural-super-app {
     margin-bottom: var(--spacing-xs);
     text-align: center;
-  }
-
-  .nav-links {
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-xs);
+    width: 100%;
+    justify-content: center; /* Center the logo/brand */
   }
 
   .navbar .search-form-navbar {
     margin-left: 0;
     width: 100%;
     margin-top: var(--spacing-xs);
+    order: 3; /* Move search below nav links on small screens */
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: var(--spacing-xs); /* Re-add gap for stacked links */
+    margin-bottom: var(--spacing-xs);
+    width: 100%;
+    align-items: center; /* Center stacked links */
+    flex-wrap: wrap; /* Allow links to wrap if too many */
+    margin-left: 0; /* Remove auto margin when stacked vertically */
+  }
+
+  /* Ensure profile and logout links stack correctly on small screens */
+  .navbar-profile-link,
+  .navbar-logout-button {
+    margin-left: 0;
+    margin-top: var(--spacing-xs); /* Add vertical spacing */
+    width: 100%; /* Take full width */
+    text-align: center;
   }
 
   .main-content,
@@ -1133,6 +1318,9 @@ img {
   .user-profile-page,
   .marketplace-page {
     padding: var(--spacing-sm);
+    /* Ensure no residual side padding from main-content */
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
   }
 
   h1 { font-size: 1.8rem; }
@@ -1205,6 +1393,20 @@ img {
 
   .message-bubble {
     max-width: 80%;
+  }
+
+  .dashboard-profile-link-card {
+    padding: var(--spacing-md);
+  }
+
+  .dashboard-profile-link-card h3 {
+    font-size: 1.4rem;
+  }
+
+  .profile-logout-button {
+    width: 90%;
+    padding: var(--spacing-sm);
+    font-size: 1rem;
   }
 }
 
