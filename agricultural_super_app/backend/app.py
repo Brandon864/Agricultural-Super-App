@@ -22,8 +22,7 @@ load_dotenv() # This loads the environment variables from .env file
 app = Flask(__name__, static_folder="../frontend/build", static_url_path="/")
 
 # --- Configuration ---
-CORS(app, resources={r"/api/*": {"origins": os.environ.get("FRONTEND_URL", "*")}})
-
+CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", os.environ.get("FRONTEND_URL", "*")]}})
 # Database URI configuration for deployment
 # It uses the DATABASE_URL environment variable, falling back to SQLite for local development if not set.
 db_url = os.environ.get("DATABASE_URL", "sqlite:///agri_app.db")
