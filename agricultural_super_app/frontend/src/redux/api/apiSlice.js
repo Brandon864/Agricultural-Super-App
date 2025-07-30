@@ -1,8 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-
-
-const API_BASE_URL = "https://agricultural-super-app-0725.onrender.com";
+// Define your API base URL.
+// For local development: "http://localhost:5000" (if using .env for /api prefix)
+// For Render deployment: Your deployed backend URL (e.g., "https://your-app-name.onrender.com")
+const API_BASE_URL = "https://agricultural-super-app-0725.onrender.com"; // This is correct for the base domain
 
 export const apiSlice = createApi({
   reducerPath: "api",
@@ -31,43 +32,43 @@ export const apiSlice = createApi({
     // --- Authentication Endpoints ---
     login: builder.mutation({
       query: (credentials) => ({
-        url: "/login",
+        url: "/api/login", // Added /api
         method: "POST",
         body: credentials,
       }),
     }),
     register: builder.mutation({
       query: (userData) => ({
-        url: "/register",
+        url: "/api/register", // Added /api
         method: "POST",
         body: userData,
       }),
     }),
     logout: builder.mutation({
       query: () => ({
-        url: "/logout",
+        url: "/api/logout", // Added /api
         method: "POST",
       }),
     }),
     verifyToken: builder.query({
-      query: () => "/verify_token",
+      query: () => "/api/verify_token", // Added /api
     }),
 
     // --- User Endpoints ---
     getUsers: builder.query({
-      query: () => "/users",
+      query: () => "/api/users", // Added /api
     }),
     getUserById: builder.query({
-      query: (userId) => `/users/${userId}`,
+      query: (userId) => `/api/users/${userId}`, // Added /api
       providesTags: (result, error, userId) => [{ type: "User", id: userId }],
     }),
     getProfile: builder.query({
-      query: () => "/profile",
+      query: () => "/api/profile", // Added /api
       providesTags: (result) => [{ type: "User", id: result?.id }],
     }),
     updateProfile: builder.mutation({
       query: (userData) => ({
-        url: "/profile",
+        url: "/api/profile", // Added /api
         method: "PUT",
         body: userData,
       }),
@@ -76,7 +77,7 @@ export const apiSlice = createApi({
       ],
     }),
     getUserPosts: builder.query({
-      query: (userId) => `/users/${userId}/posts`,
+      query: (userId) => `/api/users/${userId}/posts`, // Added /api
       providesTags: (result, error, userId) =>
         result
           ? [
@@ -87,12 +88,12 @@ export const apiSlice = createApi({
     }),
 
     getPosts: builder.query({
-      query: () => "/posts",
+      query: () => "/api/posts", // Added /api
       providesTags: ["Post"],
     }),
     createPost: builder.mutation({
       query: (postData) => ({
-        url: "/posts",
+        url: "/api/posts", // Added /api
         method: "POST",
         body: postData,
       }),
@@ -105,12 +106,12 @@ export const apiSlice = createApi({
       ],
     }),
     getPostDetail: builder.query({
-      query: (postId) => `/posts/${postId}`,
+      query: (postId) => `/api/posts/${postId}`, // Added /api
       providesTags: (result, error, postId) => [{ type: "Post", id: postId }],
     }),
     likePost: builder.mutation({
       query: ({ postId }) => ({
-        url: `/posts/${postId}/like`,
+        url: `/api/posts/${postId}/like`, // Added /api
         method: "POST",
       }),
       invalidatesTags: (result, error, { postId }) => [
@@ -119,7 +120,7 @@ export const apiSlice = createApi({
     }),
     unlikePost: builder.mutation({
       query: ({ postId }) => ({
-        url: `/posts/${postId}/unlike`,
+        url: `/api/posts/${postId}/unlike`, // Added /api
         method: "POST",
       }),
       invalidatesTags: (result, error, { postId }) => [
@@ -128,7 +129,7 @@ export const apiSlice = createApi({
     }),
 
     getCommentsForPost: builder.query({
-      query: (postId) => `/posts/${postId}/comments`,
+      query: (postId) => `/api/posts/${postId}/comments`, // Added /api
       providesTags: (result) =>
         result
           ? [
@@ -139,7 +140,7 @@ export const apiSlice = createApi({
     }),
     addCommentToPost: builder.mutation({
       query: ({ postId, commentData }) => ({
-        url: `/posts/${postId}/comments`,
+        url: `/api/posts/${postId}/comments`, // Added /api
         method: "POST",
         body: commentData,
       }),
@@ -150,7 +151,7 @@ export const apiSlice = createApi({
     }),
     likeComment: builder.mutation({
       query: ({ commentId }) => ({
-        url: `/comments/${commentId}/like`,
+        url: `/api/comments/${commentId}/like`, // Added /api
         method: "POST",
       }),
       invalidatesTags: (result, error, { commentId }) => [
@@ -159,7 +160,7 @@ export const apiSlice = createApi({
     }),
     unlikeComment: builder.mutation({
       query: ({ commentId }) => ({
-        url: `/comments/${commentId}/like`,
+        url: `/api/comments/${commentId}/like`, // Added /api
         method: "DELETE",
       }),
       invalidatesTags: (result, error, { commentId }) => [
@@ -168,26 +169,26 @@ export const apiSlice = createApi({
     }),
 
     getMarketplaceItems: builder.query({
-      query: () => "/marketplace/items",
+      query: () => "/api/marketplace/items", // Added /api
       providesTags: ["MarketplaceItem"],
     }),
     createMarketplaceItem: builder.mutation({
       query: (itemData) => ({
-        url: "/marketplace/items",
+        url: "/api/marketplace/items", // Added /api
         method: "POST",
         body: itemData,
       }),
       invalidatesTags: ["MarketplaceItem"],
     }),
     getMarketplaceItemDetail: builder.query({
-      query: (itemId) => `/marketplace/items/${itemId}`,
+      query: (itemId) => `/api/marketplace/items/${itemId}`, // Added /api
       providesTags: (result, error, itemId) => [
         { type: "MarketplaceItem", id: itemId },
       ],
     }),
 
     getUserJoinedCommunities: builder.query({
-      query: (userId) => `/users/${userId}/joined_communities`,
+      query: (userId) => `/api/users/${userId}/joined_communities`, // Added /api
       providesTags: (result, error, userId) =>
         result
           ? [
@@ -198,18 +199,18 @@ export const apiSlice = createApi({
     }),
 
     getCommunities: builder.query({
-      query: () => "/communities",
+      query: () => "/api/communities", // Added /api
       providesTags: ["Community"],
     }),
     getCommunityDetail: builder.query({
-      query: (communityId) => `/communities/${communityId}`,
+      query: (communityId) => `/api/communities/${communityId}`, // Added /api
       providesTags: (result, error, communityId) => [
         { type: "Community", id: communityId },
       ],
     }),
     createCommunity: builder.mutation({
       query: (communityData) => ({
-        url: "/communities",
+        url: "/api/communities", // Added /api
         method: "POST",
         body: communityData,
       }),
@@ -217,7 +218,7 @@ export const apiSlice = createApi({
     }),
     joinCommunity: builder.mutation({
       query: (communityId) => ({
-        url: `/communities/${communityId}/join`,
+        url: `/api/communities/${communityId}/join`, // Added /api
         method: "POST",
       }),
       invalidatesTags: (result, error, communityId) => [
@@ -229,7 +230,7 @@ export const apiSlice = createApi({
     }),
     leaveCommunity: builder.mutation({
       query: (communityId) => ({
-        url: `/communities/${communityId}/leave`,
+        url: `/api/communities/${communityId}/leave`, // Added /api
         method: "POST",
       }),
       invalidatesTags: (result, error, communityId) => [
@@ -240,7 +241,7 @@ export const apiSlice = createApi({
       ],
     }),
     getCommunityPosts: builder.query({
-      query: (communityId) => `/communities/${communityId}/posts`,
+      query: (communityId) => `/api/communities/${communityId}/posts`, // Added /api
       providesTags: (result, error, communityId) =>
         result
           ? [
@@ -251,14 +252,14 @@ export const apiSlice = createApi({
     }),
 
     searchUsers: builder.query({
-      query: (query) => `/search/users?q=${query}`,
+      query: (query) => `/api/search/users?q=${query}`, // Added /api
       providesTags: (result) =>
         result
           ? [...result.map(({ id }) => ({ type: "User", id })), "UserSearch"]
           : ["UserSearch"],
     }),
     searchCommunities: builder.query({
-      query: (query) => `/search/communities?q=${query}`,
+      query: (query) => `/api/search/communities?q=${query}`, // Added /api
       providesTags: (result) =>
         result
           ? [
@@ -268,7 +269,7 @@ export const apiSlice = createApi({
           : ["CommunitySearch"],
     }),
     searchPosts: builder.query({
-      query: (query) => `/search/posts?q=${query}`,
+      query: (query) => `/api/search/posts?q=${query}`, // Added /api
       providesTags: (result) =>
         result
           ? [...result.map(({ id }) => ({ type: "Post", id })), "PostSearch"]
@@ -276,7 +277,7 @@ export const apiSlice = createApi({
     }),
 
     getFollowers: builder.query({
-      query: (userId) => `/users/${userId}/followers`,
+      query: (userId) => `/api/users/${userId}/followers`, // Added /api
       providesTags: (result, error, userId) => [
         { type: "Follow", id: `FOLLOWERS_OF_${userId}` },
         // Safely map over result only if it's an array
@@ -286,7 +287,7 @@ export const apiSlice = createApi({
       ],
     }),
     getFollowing: builder.query({
-      query: (userId) => `/users/${userId}/following`,
+      query: (userId) => `/api/users/${userId}/following`, // Added /api
       providesTags: (result, error, userId) => [
         { type: "Follow", id: `FOLLOWING_OF_${userId}` },
         // Safely map over result only if it's an array
@@ -298,7 +299,7 @@ export const apiSlice = createApi({
 
     followUser: builder.mutation({
       query: (userId) => ({
-        url: `/users/${userId}/follow`,
+        url: `/api/users/${userId}/follow`, // Added /api
         method: "POST",
       }),
       invalidatesTags: (result, error, userId) => [
@@ -310,7 +311,7 @@ export const apiSlice = createApi({
     }),
     unfollowUser: builder.mutation({
       query: (userId) => ({
-        url: `/users/${userId}/unfollow`,
+        url: `/api/users/${userId}/unfollow`, // Added /api
         method: "DELETE",
       }),
       invalidatesTags: (result, error, userId) => [
@@ -322,7 +323,7 @@ export const apiSlice = createApi({
     }),
     followCommunity: builder.mutation({
       query: (communityId) => ({
-        url: `/communities/${communityId}/follow`,
+        url: `/api/communities/${communityId}/follow`, // Added /api
         method: "POST",
       }),
       invalidatesTags: (result, error, communityId) => [
@@ -333,7 +334,7 @@ export const apiSlice = createApi({
     }),
     unfollowCommunity: builder.mutation({
       query: (communityId) => ({
-        url: `/communities/${communityId}/unfollow`,
+        url: `/api/communities/${communityId}/unfollow`, // Added /api
         method: "DELETE",
       }),
       invalidatesTags: (result, error, communityId) => [
@@ -345,7 +346,7 @@ export const apiSlice = createApi({
 
     sendMessage: builder.mutation({
       query: (messageData) => ({
-        url: "/messages",
+        url: "/api/messages", // Added /api
         method: "POST",
         body: messageData,
       }),
@@ -362,7 +363,7 @@ export const apiSlice = createApi({
       },
     }),
     getDirectMessages: builder.query({
-      query: (otherUserId) => `/messages/direct/${otherUserId}`,
+      query: (otherUserId) => `/api/messages/direct/${otherUserId}`, // Added /api
       providesTags: (result, error, otherUserId) =>
         result
           ? [
@@ -372,7 +373,7 @@ export const apiSlice = createApi({
           : [{ type: "Message", id: `DIRECT_${otherUserId}` }],
     }),
     getCommunityMessages: builder.query({
-      query: (communityId) => `/messages/community/${communityId}`,
+      query: (communityId) => `/api/messages/community/${communityId}`, // Added /api
       providesTags: (result, error, communityId) =>
         result
           ? [

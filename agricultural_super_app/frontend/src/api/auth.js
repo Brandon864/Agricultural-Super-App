@@ -1,8 +1,8 @@
-// src/api/auth.js
 const API_BASE_URL = "https://agricultural-super-app-0725.onrender.com";
 
 export const loginUser = async (credentials) => {
-  const response = await fetch(`${API_BASE_URL}/login`, {
+  const response = await fetch(`${API_BASE_URL}/api/login`, {
+    // Added /api
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -21,7 +21,8 @@ export const loginUser = async (credentials) => {
 };
 
 export const registerUser = async (userData) => {
-  const response = await fetch(`${API_BASE_URL}/register`, {
+  const response = await fetch(`${API_BASE_URL}/api/register`, {
+    // Added /api
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -44,7 +45,8 @@ export const logoutUser = async () => {
     return { message: "Already logged out" };
   }
 
-  const response = await fetch(`${API_BASE_URL}/logout`, {
+  const response = await fetch(`${API_BASE_URL}/api/logout`, {
+    // Added /api
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -64,7 +66,8 @@ export const logoutUser = async () => {
 };
 
 export const getLoggedInUserProfile = async (token) => {
-  const response = await fetch(`${API_BASE_URL}/profile`, {
+  const response = await fetch(`${API_BASE_URL}/api/profile`, {
+    // Added /api
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -91,7 +94,8 @@ export const getUserProfileById = async (userId, token = null) => {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+  const response = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
+    // Added /api
     method: "GET",
     headers: headers,
   });
