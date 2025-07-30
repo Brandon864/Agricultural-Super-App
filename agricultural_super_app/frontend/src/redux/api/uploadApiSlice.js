@@ -5,7 +5,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const uploadApi = createApi({
   reducerPath: "uploadApi", // Unique reducer path for this slice
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api", // Your Flask backend URL for uploads
+    baseUrl: "https://agricultural-super-app-0725.onrender.com", // Your Flask backend URL for uploads
     prepareHeaders: (headers, { getState }) => {
       // Assuming your auth slice stores the token as `accessToken`.
       // Ensure this matches your actual Redux state structure.

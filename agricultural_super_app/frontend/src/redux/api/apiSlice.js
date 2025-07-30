@@ -1,9 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-// Define your API base URL.
-// For local development: "http://localhost:5000/api"
-// For Render deployment: Your deployed backend URL (e.g., "https://your-app-name.onrender.com/api")
-const API_BASE_URL = "http://localhost:5000/api";
+
+
+const API_BASE_URL = "https://agricultural-super-app-0725.onrender.com";
 
 export const apiSlice = createApi({
   reducerPath: "api",
