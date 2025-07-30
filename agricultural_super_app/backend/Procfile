@@ -1,2 +1,2 @@
-release: flask db stamp head && flask db upgrade
+
 web: gunicorn --bind 0.0.0.0:10000 app:app
