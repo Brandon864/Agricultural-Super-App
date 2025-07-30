@@ -1,4 +1,3 @@
-// src/pages/MarketplaceItemDetailPage.js
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useGetMarketplaceItemDetailQuery } from "../redux/api/apiSlice";
@@ -60,14 +59,12 @@ function MarketplaceItemDetailPage() {
           {item.price != null ? item.price.toFixed(2) : "N/A"}{" "}
           {item.unit_of_measure}
         </p>
-        {/* --- UPDATE START: Wrap description with single-post-content and use dangerouslySetInnerHTML --- */}
         {item.description && (
           <div
-            className="item-detail-description single-post-content" // Added single-post-content class
+            className="item-detail-description single-post-content"
             dangerouslySetInnerHTML={{ __html: item.description }}
           ></div>
         )}
-        {/* --- UPDATE END --- */}
         <p className="item-detail-category">
           <strong>Category:</strong> {item.category}
         </p>

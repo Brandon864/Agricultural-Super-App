@@ -1,14 +1,20 @@
-// src/redux/api/apiSlice.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
+// Define your API base URL.
+// For local development: "http://localhost:5000/api"
+// For Render deployment: Your deployed backend URL (e.g., "https://your-app-name.onrender.com/api")
+const API_BASE_URL = "http://localhost:5000/api";
 
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api",
+    baseUrl: API_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.token;
+      // Get the token from localStorage using the correct key "token"
+      const token = localStorage.getItem("token");
+      // If a token is found, set the Authorization header
       if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+        headers.set("authorization", `Bearer ${token}`);
       }
       return headers;
     },
@@ -23,6 +29,7 @@ export const apiSlice = createApi({
     "Message",
   ],
   endpoints: (builder) => ({
+    // --- Authentication Endpoints ---
     login: builder.mutation({
       query: (credentials) => ({
         url: "/login",
@@ -37,19 +44,29 @@ export const apiSlice = createApi({
         body: userData,
       }),
     }),
-    // Define logout mutation
     logout: builder.mutation({
       query: () => ({
         url: "/logout",
         method: "POST",
       }),
     }),
+    verifyToken: builder.query({
+      query: () => "/verify_token",
+    }),
 
-    getUser: builder.query({
+    // --- User Endpoints ---
+    getUsers: builder.query({
+      query: () => "/users",
+    }),
+    getUserById: builder.query({
       query: (userId) => `/users/${userId}`,
       providesTags: (result, error, userId) => [{ type: "User", id: userId }],
     }),
-    updateUser: builder.mutation({
+    getProfile: builder.query({
+      query: () => "/profile",
+      providesTags: (result) => [{ type: "User", id: result?.id }],
+    }),
+    updateProfile: builder.mutation({
       query: (userData) => ({
         url: "/profile",
         method: "PUT",
@@ -59,11 +76,6 @@ export const apiSlice = createApi({
         { type: "User", id: result?.id || userData.id },
       ],
     }),
-    getUsers: builder.query({
-      query: () => "/users",
-      providesTags: ["User"],
-    }),
-
     getUserPosts: builder.query({
       query: (userId) => `/users/${userId}/posts`,
       providesTags: (result, error, userId) =>
@@ -268,14 +280,20 @@ export const apiSlice = createApi({
       query: (userId) => `/users/${userId}/followers`,
       providesTags: (result, error, userId) => [
         { type: "Follow", id: `FOLLOWERS_OF_${userId}` },
-        ...result.map(({ id }) => ({ type: "User", id })),
+        // Safely map over result only if it's an array
+        ...(Array.isArray(result)
+          ? result.map(({ id }) => ({ type: "User", id }))
+          : []),
       ],
     }),
     getFollowing: builder.query({
       query: (userId) => `/users/${userId}/following`,
       providesTags: (result, error, userId) => [
         { type: "Follow", id: `FOLLOWING_OF_${userId}` },
-        ...result.map(({ id }) => ({ type: "User", id })),
+        // Safely map over result only if it's an array
+        ...(Array.isArray(result)
+          ? result.map(({ id }) => ({ type: "User", id }))
+          : []),
       ],
     }),
 
@@ -293,7 +311,7 @@ export const apiSlice = createApi({
     }),
     unfollowUser: builder.mutation({
       query: (userId) => ({
-        url: `/users/${userId}/follow`,
+        url: `/users/${userId}/unfollow`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, userId) => [
@@ -316,7 +334,7 @@ export const apiSlice = createApi({
     }),
     unfollowCommunity: builder.mutation({
       query: (communityId) => ({
-        url: `/communities/${communityId}/follow`,
+        url: `/communities/${communityId}/unfollow`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, communityId) => [
@@ -370,10 +388,12 @@ export const apiSlice = createApi({
 export const {
   useLoginMutation,
   useRegisterMutation,
-  useLogoutMutation, // Added useLogoutMutation to exports
-  useGetUserQuery,
+  useLogoutMutation,
+  useVerifyTokenQuery,
   useGetUsersQuery,
-  useUpdateUserMutation,
+  useGetUserByIdQuery,
+  useGetProfileQuery,
+  useUpdateProfileMutation,
   useGetUserPostsQuery,
   useGetPostsQuery,
   useCreatePostMutation,
@@ -381,6 +401,7 @@ export const {
   useLikePostMutation,
   useUnlikePostMutation,
   useGetCommentsForPostQuery,
+  useGetRepliesForCommentQuery,
   useAddCommentToPostMutation,
   useLikeCommentMutation,
   useUnlikeCommentMutation,
@@ -394,6 +415,9 @@ export const {
   useJoinCommunityMutation,
   useLeaveCommunityMutation,
   useGetCommunityPostsQuery,
+  useSendMessageMutation,
+  useGetDirectMessagesQuery,
+  useGetCommunityMessagesQuery,
   useSearchUsersQuery,
   useSearchCommunitiesQuery,
   useSearchPostsQuery,
@@ -403,7 +427,4 @@ export const {
   useUnfollowUserMutation,
   useFollowCommunityMutation,
   useUnfollowCommunityMutation,
-  useSendMessageMutation,
-  useGetDirectMessagesQuery,
-  useGetCommunityMessagesQuery,
 } = apiSlice;

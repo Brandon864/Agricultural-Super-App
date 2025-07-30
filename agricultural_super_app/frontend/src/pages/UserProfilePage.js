@@ -2,12 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-// Assuming you have these queries in your apiSlice
+// Corrected imports to match the names exported from apiSlice
 import {
-  useGetUserQuery,
-  useUpdateUserMutation,
-  useGetUserPostsQuery, // NEW: For fetching user's posts
-  useGetUserJoinedCommunitiesQuery, // NEW: For fetching user's joined communities
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+  useGetUserPostsQuery,
+  useGetUserJoinedCommunitiesQuery,
+  useGetFollowersQuery,
+  useGetFollowingQuery,
 } from "../redux/api/apiSlice";
 import { setCredentials } from "../redux/auth/authSlice";
 import "../App.css";
@@ -18,21 +20,22 @@ function UserProfilePage() {
   const dispatch = useDispatch();
   const { currentUser, token } = useSelector((state) => state.auth);
 
+  // Use useGetProfileQuery for the current user's profile
   const {
     data: userData,
     isLoading,
     isSuccess,
     isError,
     error,
-  } = useGetUserQuery(currentUser?.id, {
-    skip: !currentUser?.id,
+  } = useGetProfileQuery(undefined, {
+    skip: !currentUser?.id, // Skip if currentUser.id is not available
     selectFromResult: ({ data, ...rest }) => ({
       data: data && typeof data === "object" && data.id ? data : null,
       ...rest,
     }),
   });
 
-  // NEW: Fetch user's posts
+  // Fetch user's posts
   const {
     data: userPosts,
     isLoading: arePostsLoading,
@@ -40,10 +43,10 @@ function UserProfilePage() {
     isError: arePostsError,
     error: postsError,
   } = useGetUserPostsQuery(currentUser?.id, {
-    skip: !currentUser?.id,
+    skip: !currentUser?.id, // Skip if currentUser.id is not available
   });
 
-  // NEW: Fetch user's joined communities
+  // Fetch user's joined communities
   const {
     data: userCommunities,
     isLoading: areCommunitiesLoading,
@@ -51,8 +54,20 @@ function UserProfilePage() {
     isError: areCommunitiesError,
     error: communitiesError,
   } = useGetUserJoinedCommunitiesQuery(currentUser?.id, {
-    skip: !currentUser?.id,
+    skip: !currentUser?.id, // Skip if currentUser.id is not available
   });
+
+  // Fetch user's followers
+  const { data: followersData, isLoading: areFollowersLoading } =
+    useGetFollowersQuery(currentUser?.id, {
+      skip: !currentUser?.id, // Skip if currentUser.id is not available
+    });
+
+  // Fetch user's following
+  const { data: followingData, isLoading: areFollowingLoading } =
+    useGetFollowingQuery(currentUser?.id, {
+      skip: !currentUser?.id, // Skip if currentUser.id is not available
+    });
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -61,7 +76,8 @@ function UserProfilePage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState("");
 
-  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  // Use useUpdateProfileMutation for updating the current user's profile
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
   useEffect(() => {
     if (isSuccess && userData) {
@@ -70,6 +86,7 @@ function UserProfilePage() {
       setBio(userData.bio || "");
       setProfilePicturePreview(userData.profile_picture_url || defaultAvatar);
     } else if (currentUser && currentUser.id) {
+      // Fallback to currentUser from Redux if userData hasn't loaded yet
       setUsername(currentUser.username || "");
       setEmail(currentUser.email || "");
       setBio(currentUser.bio || "");
@@ -86,6 +103,7 @@ function UserProfilePage() {
     if (file) {
       setProfilePicturePreview(URL.createObjectURL(file));
     } else {
+      // If no file selected, revert to current profile picture or default
       setProfilePicturePreview(
         userData?.profile_picture_url ||
           currentUser?.profile_picture_url ||
@@ -105,22 +123,28 @@ function UserProfilePage() {
 
     if (selectedFile) {
       formData.append("profile_picture", selectedFile);
+    } else if (profilePicturePreview === "" && userData?.profile_picture_url) {
+      // If user explicitly cleared the picture and there was one before, send empty string
+      formData.append("profile_picture_url", "");
     }
 
     try {
-      const updatedUserResponse = await updateUser(formData).unwrap();
+      const updatedUserResponse = await updateProfile(formData).unwrap();
 
       if (updatedUserResponse.user) {
         dispatch(
           setCredentials({ token: token, user: updatedUserResponse.user })
         );
         setMessage("Profile updated successfully!");
+        // Update preview with new URL from backend response
         if (updatedUserResponse.user.profile_picture_url) {
           setProfilePicturePreview(
             updatedUserResponse.user.profile_picture_url
           );
+        } else {
+          setProfilePicturePreview(defaultAvatar); // If URL is null/empty, use default
         }
-        setSelectedFile(null);
+        setSelectedFile(null); // Clear selected file after successful upload
       } else {
         setMessage(
           updatedUserResponse.message ||
@@ -137,7 +161,13 @@ function UserProfilePage() {
     }
   };
 
-  if (isLoading) {
+  if (
+    isLoading ||
+    arePostsLoading ||
+    areCommunitiesLoading ||
+    areFollowersLoading ||
+    areFollowingLoading
+  ) {
     return (
       <div className="page-container">
         <p className="loading-message">Loading profile...</p>
@@ -193,14 +223,14 @@ function UserProfilePage() {
           <strong>Member Since:</strong>{" "}
           {new Date(userData.created_at).toLocaleDateString()}
         </p>
-        {userData.followers_count !== undefined && (
+        {followersData !== undefined && (
           <p>
-            <strong>Followers:</strong> {userData.followers_count}
+            <strong>Followers:</strong> {followersData.length}
           </p>
         )}
-        {userData.following_users_count !== undefined && (
+        {followingData !== undefined && (
           <p>
-            <strong>Following Users:</strong> {userData.following_users_count}
+            <strong>Following Users:</strong> {followingData.length}
           </p>
         )}
         {userData.following_communities_count !== undefined && (

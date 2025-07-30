@@ -1,9 +1,8 @@
-// src/pages/UserDetailPage.js
 import React from "react";
-import { useParams } from "react-router-dom"; // 'Link' is removed as it's not used directly here
+import { useParams, Link } from "react-router-dom"; // 'Link' is now used, re-added
 import { useSelector } from "react-redux";
 import {
-  useGetUserQuery,
+  useGetUserByIdQuery, // Corrected import: changed from useGetUserQuery
   useGetFollowersQuery,
   useGetFollowingQuery,
   useFollowUserMutation,
@@ -20,20 +19,20 @@ function UserDetailPage() {
     isLoading: isUserLoading,
     isError: isUserError,
     error: userError,
-  } = useGetUserQuery(userId);
+  } = useGetUserByIdQuery(userId); // Corrected hook usage: changed from useGetUserQuery
 
   const {
     data: followers,
     isLoading: isFollowersLoading,
-    isError: isFollowersError, // No longer unused, will be used in error message
-    error: followersError, // No longer unused
+    isError: isFollowersError,
+    error: followersError,
   } = useGetFollowersQuery(userId);
 
   const {
     data: following,
     isLoading: isFollowingLoading,
-    isError: isFollowingError, // No longer unused
-    error: followingError, // No longer unused
+    isError: isFollowingError,
+    error: followingError,
   } = useGetFollowingQuery(userId);
 
   const [followUser] = useFollowUserMutation();
