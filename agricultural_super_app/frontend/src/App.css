@@ -510,7 +510,7 @@ img {
   margin-bottom: var(--spacing-md);
   box-shadow: var(--box-shadow-light);
   display: flex;
-  flex-direction:row-reverse;
+  flex-direction: column;
   min-height: 380px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
