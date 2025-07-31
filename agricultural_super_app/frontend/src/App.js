@@ -24,6 +24,7 @@ import { PersistGate } from "redux-persist/integration/react";
 
 import SearchResultsPage from "./pages/SearchResultsPage";
 import UserDetailPage from "./pages/UserDetailPage";
+import "./App.css";
 
 // CORRECTED IMPORT: Import ChatDashboard from the existing file
 import ChatDashboard from "./pages/ChatDashboard"; // Changed from MessagingCenterPage
