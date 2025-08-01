@@ -37,43 +37,50 @@ Refer to `backend/README.md` and `frontend/README.md` for setup and usage instru
 
 ## Project Structure
 
-```
 .
 ├── backend/
-│   ├── app.py
-│   ├── config.py
-│   ├── models.py
-│   ├── routes.py
-│   ├── schemas.py
-│   ├── requirements.txt
-│   ├── migrations/
-│   ├── uploads/
-│   ├── tests/
-│   ├── utils/
-│   ├── static/
-│   ├── templates/
-│   └── README.md
+│ ├── app.py
+│ ├── config.py
+│ ├── models.py
+│ ├── routes.py
+│ ├── schemas.py
+│ ├── requirements.txt
+│ ├── migrations/
+│ ├── uploads/
+│ ├── tests/
+│ ├── utils/
+│ ├── static/
+│ ├── templates/
+│ └── README.md
 ├── frontend/
-│   ├── public/
-│   │   ├── index.html
-│   │   └── favicon.ico
-│   ├── src/
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   ├── index.js
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── redux/
-│   │   ├── services/
-│   │   └── utils/
-│   ├── package.json
-│   ├── .env
-│   └── README.md
+│ ├── public/
+│ │ ├── index.html
+│ │ └── favicon.ico
+│ ├── src/
+│ │ ├── App.js
+│ │ ├── App.css
+│ │ ├── index.js
+│ │ ├── assets/
+│ │ ├── components/
+│ │ ├── pages/
+│ │ ├── redux/
+│ │ ├── services/
+│ │ └── utils/
+│ ├── package.json
+│ ├── .env
+│ └── README.md
 ├── .gitignore
 ├── package.json
 └── README.md
-```
+
+ruby
+Copy
+Edit
+
+## Links
+
+- Live Website:->(https://agri-super-app-frontend.onrender.com/)
+- Project Presentation:->(Google Slides):-(https://docs.google.com/presentation/d/1GlABOcvIGFHxrTDuakBVegqQPqp-cUDpxicPuhFm7o8/edit?usp=sharing)
 
 ---
 
@@ -89,5 +96,5 @@ Refer to `backend/README.md` and `frontend/README.md` for setup and usage instru
     ```
 3. Commit:
     ```bash
-    git commit -m "docs: Update README with core features and structure"
+    git commit -m "docs: Add live website and Google Slides links to README"
     ```
